@@ -34,6 +34,56 @@ Create table Counties(
                      name varchar(100)
 );
 
+CREATE TABLE political_party (
+  id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  name VARCHAR(100)
+);
+
+INSERT INTO political_party (name)
+VALUES ('Partidul 1'), ('Partidul 2'), ('Partidul 3'), ('Partidul 4'), ('Partidul 5'), ('Partidul 6'), ('Partidul 7'), ('Partidul 8'), ('Partidul 9'), ('Partidul 10'),('Partidul 11'), ('Partidul 12'),('Partidul 13'),('Partidul 14') ;
+INSERT INTO political_party (name)
+VALUES ('Partidul 21'), ('Partidul 22'), ('Partidul 23'), ('Partidul 24'), ('Partidul 25'), ('Partidul 26'), ('Partidul 27'), ('Partidul 28'), ('Partidul 29'), ('Partidul 0');
+
+CREATE TABLE political_party_locality (
+  political_party_id BIGINT,
+  locality_id BIGINT,
+  FOREIGN KEY (political_party_id) REFERENCES political_party(id),
+  FOREIGN KEY (locality_id) REFERENCES localities(id),
+  PRIMARY KEY (political_party_id, locality_id)
+);
+
+CREATE TABLE competitors (
+  id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  name VARCHAR(100),
+  gender VARCHAR(100),
+  position VARCHAR(100),
+  image_url VARCHAR(100),
+  birth_date VARCHAR(100),
+  description VARCHAR(500),
+  political_party_id BIGINT,
+  FOREIGN KEY (political_party_id) REFERENCES political_party(id),)
+);
+
+ALTER TABLE competitors
+ADD COLUMN locality_id BIGINT,
+ADD FOREIGN KEY (political_party_id, locality_id) REFERENCES political_party_locality(political_party_id, locality_id);
+
+ALTER TABLE competitors
+ADD COLUMN residence varchar(100),
+ADD COLUMN phone_number VARCHAR(100),
+ADD COLUMN email VARCHAR(100);
+
+CREATE TABLE education (
+  id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  faculty VARCHAR(100),
+  promotion_year int,
+  competitor_id BIGINT,
+  FOREIGN KEY (competitor_id) REFERENCES competitors(id)
+);
+
+ALTER TABLE localities
+ADD COLUMN political_party_id int;
+
 CREATE TABLE Reset_Password_Request(
                                        id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
                                        request_id UUID,

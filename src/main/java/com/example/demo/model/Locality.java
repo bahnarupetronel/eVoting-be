@@ -1,13 +1,21 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter @Setter@AllArgsConstructor@NoArgsConstructor
 @Entity
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id")
 @Table(name = "localities")
 public class Locality {
     @Id
@@ -38,4 +46,8 @@ public class Locality {
 
     @Column(name = "lat")
     private double lat;
+
+    @ManyToMany(mappedBy = "localities")
+    private List<PoliticalParty> politicalParties = new ArrayList<>();
+
 }

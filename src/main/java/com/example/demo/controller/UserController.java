@@ -21,10 +21,6 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/hello")
-    public String helloTest(){
-        return "Hello";
-    }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserRegisterDTO user) {
