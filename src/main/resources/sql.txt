@@ -1,0 +1,179 @@
+CREATE TABLE User_details(
+                             id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                             name varchar(100),
+                             email varchar(100) unique,
+                             password varchar(100),
+                             cnp varchar(100) unique,
+                             series_and_number varchar(100),
+                             address_line1 varchar(100),
+                             address_line2 varchar(100),
+                             phone_number varchar(100),
+                             postal_code varchar(100),
+                             city varchar(100),
+                             state varchar(100),
+                             country varchar(100),
+                             link_CI_photo varchar(200)
+);
+
+insert into User_details(name,email,password, cnp, seriesAndNumber) VALUES ('Petronel','bahnaru.petronel@gmail.com','sdfsfdrewr', 'eriwtw', 'ewjiothew');
+
+Create table Localities(
+                     id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                     name varchar(100),
+                     county varchar(100),
+                     population int,
+                     auto varchar(100),
+                     diacritics varchar(100),
+                     zip varchar(100),
+                     lat double precision,
+                     lng double precision
+);
+
+Create table Counties(
+                     id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                     name varchar(100)
+);
+
+CREATE TABLE political_party (
+  id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  name VARCHAR(100)
+);
+
+INSERT INTO political_party (name)
+VALUES ('Partidul 1'), ('Partidul 2'), ('Partidul 3'), ('Partidul 4'), ('Partidul 5'), ('Partidul 6'), ('Partidul 7'), ('Partidul 8'), ('Partidul 9'), ('Partidul 10'),('Partidul 11'), ('Partidul 12'),('Partidul 13'),('Partidul 14') ;
+INSERT INTO political_party (name)
+VALUES ('Partidul 21'), ('Partidul 22'), ('Partidul 23'), ('Partidul 24'), ('Partidul 25'), ('Partidul 26'), ('Partidul 27'), ('Partidul 28'), ('Partidul 29'), ('Partidul 0');
+
+CREATE TABLE political_party_locality (
+  political_party_id BIGINT,
+  locality_id BIGINT,
+  FOREIGN KEY (political_party_id) REFERENCES political_party(id),
+  FOREIGN KEY (locality_id) REFERENCES localities(id),
+  PRIMARY KEY (political_party_id, locality_id)
+);
+
+CREATE TABLE competitors (
+  id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  name VARCHAR(100),
+  gender VARCHAR(100),
+  position VARCHAR(100),
+  image_url VARCHAR(100),
+  birth_date VARCHAR(100),
+  description VARCHAR(500),
+  political_party_id BIGINT,
+  FOREIGN KEY (political_party_id) REFERENCES political_party(id),)
+);
+
+ALTER TABLE competitors
+ADD COLUMN locality_id BIGINT,
+ADD FOREIGN KEY (political_party_id, locality_id) REFERENCES political_party_locality(political_party_id, locality_id);
+
+ALTER TABLE competitors
+ADD COLUMN residence varchar(100),
+ADD COLUMN phone_number VARCHAR(100),
+ADD COLUMN email VARCHAR(100);
+
+CREATE TABLE education (
+  id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  faculty VARCHAR(100),
+  promotion_year int,
+  competitor_id BIGINT,
+  FOREIGN KEY (competitor_id) REFERENCES competitors(id)
+);
+
+ALTER TABLE localities
+ADD COLUMN political_party_id int;
+
+CREATE TABLE Reset_Password_Request(
+                                       id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                                       request_id UUID,
+                                       user_id int,
+                                       FOREIGN KEY(user_id) REFERENCES User_Details(id)
+);
+
+Create table Patient(
+                        id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                        first_name varchar(50) NOT NULL,
+                        last_name varchar(50) NOT NULL,
+                        gender varchar(50) NOT NULL,
+                        birth_date date NOT NULL,
+                        address varchar(50) NOT NULL,
+                        personal_numeric_code varchar(13) unique NOT NULL,
+                        id_series_and_number varchar(50) NOT NULL,
+                        type_of_insurance_id int,
+                        FOREIGN KEY(type_of_insurance_id) REFERENCES Insurance_Type(id) ON DELETE CASCADE,
+                        insurance_status_id int,
+                        FOREIGN KEY(insurance_status_id) REFERENCES Insurance_Status(id) ON DELETE CASCADE,
+                        type_of_admission_id int,
+                        FOREIGN KEY(type_of_admission_id) REFERENCES Admission_Type(id) ON DELETE CASCADE,
+                        speciality_id int,
+                        FOREIGN KEY(speciality_id) REFERENCES Speciality(id) ON DELETE CASCADE,
+                        room_id int,
+                        FOREIGN KEY(room_id) REFERENCES Room(id) ON DELETE CASCADE,
+                        diagnosis_id int,
+                        FOREIGN KEY(diagnosis_id) REFERENCES Diagnosis(id) ON DELETE CASCADE,
+                        surgery_details_id int,
+                        FOREIGN KEY(surgery_details_id) REFERENCES Patient_Surgery_Details(id) ON DELETE CASCADE,
+                        history_details_id int,
+                        FOREIGN KEY(history_details_id) REFERENCES Patient_History_Details(id) ON DELETE CASCADE
+);
+
+Create table Patient_Evolution(
+                                  id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                                  evolution_description varchar(50),
+                                  from_date date,
+                                  to_date date,
+                                  evolution_id int,
+                                  FOREIGN KEY(evolution_id) REFERENCES Patient(id) ON DELETE CASCADE
+);
+
+
+insert into Insurance_Type(type) values ('aa');
+insert into Insurance_Type(type) values ('bb');
+insert into Insurance_Type(type) values ('cc');
+insert into Insurance_Type(type) values ('dd');
+
+
+-- For type_of_insurance_id in Patient table
+INSERT INTO Insurance_Type (id, type) VALUES (1, 'Public');
+INSERT INTO Insurance_Type (id, type) VALUES (2, 'Private');
+INSERT INTO Insurance_Type (id, type) VALUES (3, 'None');
+
+-- For insurance_status_id in Patient table
+INSERT INTO Insurance_Status (id, status) VALUES (1, 'Active');
+INSERT INTO Insurance_Status (id, status) VALUES (2, 'Inactive');
+
+-- For type_of_admission_id in Patient table
+INSERT INTO Admission_Type (id, type) VALUES (1, 'Emergency');
+INSERT INTO Admission_Type (id, type) VALUES (2, 'Planned');
+
+-- For room_id in Patient table
+INSERT INTO Room (id, name, speciality_id) VALUES (1, 'Room A', 1);
+INSERT INTO Room (id, name, speciality_id) VALUES (2, 'Room B', 2);
+INSERT INTO Room (id, name, speciality_id) VALUES (3, 'Room C', 3);
+INSERT INTO Room (id, name, speciality_id) VALUES (4, 'Room D', 4);
+INSERT INTO Room (id, name, speciality_id) VALUES (5, 'Room E', 5);
+INSERT INTO Room (id, name, speciality_id) VALUES (6, 'Room F', 6);
+
+-- For diagnosis_id in Patient table
+INSERT INTO Diagnosis (id, inital_diagnosis, seventy_two_hour_diagnosis, final_diagnosis) VALUES (1, 'Migraine', 'Migraine with aura', 'Chronic migraine');
+INSERT INTO Diagnosis (id, inital_diagnosis, seventy_two_hour_diagnosis, final_diagnosis) VALUES (2, 'Myocardial infarction', 'STEMI', 'STEMI with reperfusion');
+INSERT INTO Diagnosis (id, inital_diagnosis, seventy_two_hour_diagnosis, final_diagnosis) VALUES (3, 'Fracture', 'Oblique fracture of the radius', 'Oblique fracture of bone');
+
+-- For surgery_details_id in Patient table
+INSERT INTO Patient_Surgery_Details (id, team_of_medics, details, Date) VALUES (1, 'Dr. Smith, Dr. Johnson', 'Open heart surgery', '2022-01-01');
+INSERT INTO Patient_Surgery_Details (id, team_of_medics, details, Date) VALUES (2, 'Dr. Brown, Dr. Martinez', 'Spinal fusion surgery', '2022-02-15');
+INSERT INTO Patient_Surgery_Details (id, team_of_medics, details, Date) VALUES (3, 'Dr. Lee, Dr. Davis', 'Knee replacement surgery', '2022-03-10');
+
+-- For history_details_id in Patient table
+INSERT INTO Patient_History_Details (id, heredo_collateral_antecedents, living_conditions, behaviors, background_medication, disease_history, general_clinical_examination) VALUES (1, 'None', 'Urban area, apartment', 'Nonsmoker, social drinker', 'None', 'Migraine, anxiety disorder', 'Within normal limits');
+INSERT INTO Patient_History_Details (id, heredo_collateral_antecedents, living_conditions, behaviors, background_medication, disease_history, general_clinical_examination) VALUES (2, 'Had hyperthension', 'Rural area, house', 'Nonsmoker, no alcohol consumption', 'None', 'Depression', 'Within normal limits');
+INSERT INTO Patient_History_Details (id, heredo_collateral_antecedents, living_conditions, behaviors, background_medication, disease_history, general_clinical_examination) VALUES (3, 'No significant heredo-collateral antecedents', 'Lives in a house with good conditions', 'Non-smoker, drinks occasionally', 'None', 'No significant medical history', 'Normal clinical examination');
+
+
+ALTER TABLE Patient
+ADD COLUMN admission_date date NOT NULL;
+
+INSERT INTO Patient(id, first_name, last_name, gender, birth_date, address, personal_numeric_code, id_series_and_number, type_of_insurance_id, insurance_status_id, type_of_admission_id, speciality_id, room_id, diagnosis_id, surgery_details_id, history_details_id,admission_date) VALUES (1, 'John', 'Doe', 'Male', '1990-01-01', '123 Main St', '1234567890123', 'AB123456', 1, 1, 1, 1, 1, 1, 1, 1,'2023-02-12');
+INSERT INTO Patient(id, first_name, last_name, gender, birth_date, address, personal_numeric_code, id_series_and_number, type_of_insurance_id, insurance_status_id, type_of_admission_id, speciality_id, room_id, diagnosis_id, surgery_details_id, history_details_id,admission_date) VALUES (2, 'Jane', 'Smith', 'Female', '1985-05-05', '456 Elm St', '9876543210123', 'CD987654', 2, 2, 2, 2, 2, 2, 2, 2,'2023-04-15');
+INSERT INTO Patient(id, first_name, last_name, gender, birth_date, address, personal_numeric_code, id_series_and_number, type_of_insurance_id, insurance_status_id, type_of_admission_id, speciality_id, room_id, diagnosis_id, surgery_details_id, history_details_id,admission_date) VALUES (3, 'Bob', 'Johnson', 'Male', '1975-12-31', '789 Oak St', '4567890123456', 'EF456789', 3, 2, 2, 3, 3, 3, 3, 3,'2023-01-10');
