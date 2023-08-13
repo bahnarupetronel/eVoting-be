@@ -6,25 +6,27 @@ import com.example.demo.exception.ConfirmPasswordException;
 import com.example.demo.exception.InvalidEmailException;
 import com.example.demo.exception.InvalidPasswordException;
 import com.example.demo.exception.UserException;
+import com.example.demo.model.Role;
+import com.example.demo.model.User;
 import com.example.demo.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/user")
+@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
-    }
-
-
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserRegisterDTO user) {
         try {
+            user.setRole(Role.USER);
             userService.register(user);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (InvalidEmailException e) {
@@ -46,5 +48,19 @@ public class UserController {
         }catch (com.example.demo.exception.UserException e){
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         }
+    }
+
+    @GetMapping("/details")
+    public Optional<User> getUserDetails(@RequestHeader("Authorization") String bearerToken){
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            String token = bearerToken.substring(7);
+
+            Optional<User> user = userService.getUserFromToken(token);
+
+            if (user != null) {
+                return user;
+            }
+        }
+        return null;
     }
 }

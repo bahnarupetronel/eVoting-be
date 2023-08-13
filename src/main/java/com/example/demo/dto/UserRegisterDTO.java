@@ -1,5 +1,6 @@
 package com.example.demo.dto;
 
+import com.example.demo.model.Role;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,8 +21,9 @@ public class UserRegisterDTO {
     private String addressLine2;
     private String phoneNumber;
     private String postalCode;
-    private String city;
-    private String state;
+    private Integer localityId;
+    private Integer countyId;
     private String country;
     private String linkCIPhoto;
+    private Role role;
 }
