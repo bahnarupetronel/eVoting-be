@@ -12,7 +12,8 @@ CREATE TABLE User_details(
                              city varchar(100),
                              state varchar(100),
                              country varchar(100),
-                             link_CI_photo varchar(200)
+                             link_CI_photo varchar(200),
+                             role varchar(100)
 );
 
 insert into User_details(name,email,password, cnp, seriesAndNumber) VALUES ('Petronel','bahnaru.petronel@gmail.com','sdfsfdrewr', 'eriwtw', 'ewjiothew');
@@ -83,6 +84,16 @@ CREATE TABLE education (
 
 ALTER TABLE localities
 ADD COLUMN political_party_id int;
+
+CREATE TABLE token (
+   id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  token VARCHAR(255) UNIQUE NOT NULL,
+  tokenType VARCHAR(20) NOT NULL,
+  revoked BOOLEAN NOT NULL,
+  expired BOOLEAN NOT NULL,
+  user_id INT,
+  FOREIGN KEY (user_id) REFERENCES user_details(id)
+);
 
 CREATE TABLE Reset_Password_Request(
                                        id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,

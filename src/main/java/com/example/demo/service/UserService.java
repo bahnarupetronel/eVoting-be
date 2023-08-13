@@ -6,14 +6,13 @@ import com.example.demo.model.User;
 import com.example.demo.exception.InvalidEmailException;
 import com.example.demo.exception.InvalidPasswordException;
 import com.example.demo.repository.UserRepository;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.github.cdimascio.dotenv.Dotenv;
+import io.jsonwebtoken.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Optional;
@@ -24,6 +23,7 @@ public class UserService {
     private static final int MIN_PASSWORD_LENGTH = 8;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    Dotenv env = Dotenv.configure().load();
 
     public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
@@ -42,8 +42,8 @@ public class UserService {
         user.setAddressLine2(userRegisterDTO.getAddressLine2());
         user.setPhoneNumber(userRegisterDTO.getPhoneNumber());
         user.setPostalCode(userRegisterDTO.getPostalCode());
-        user.setCity(userRegisterDTO.getCity());
-        user.setState(userRegisterDTO.getState());
+        user.setLocalityId(userRegisterDTO.getLocalityId());
+        user.setCountyId(userRegisterDTO.getCountyId());
         user.setCountry(userRegisterDTO.getCountry());
         user.setLinkCIPhoto(userRegisterDTO.getLinkCIPhoto());
 
@@ -55,11 +55,7 @@ public class UserService {
             throw new InvalidEmailException("An account with this email address already exists. " +
                     "Please try logging in or use a different email address");
         }
-//      FIXME de luat confirm password din DTO-ul venit din request, nu din entitate
-//       if (!user.getPassword().equals(user.getConfirmPassword())) {
-//            throw new ConfirmPasswordException("Passwords do not match. " +
-//                    "Please make sure you've entered the same password in both fields");
-//        }
+
         if (user.getPassword().length() < MIN_PASSWORD_LENGTH) {
             throw new InvalidPasswordException("Password must have at least " + MIN_PASSWORD_LENGTH + " characters");
         }
@@ -67,20 +63,44 @@ public class UserService {
     public String login(String email, String password) throws UserException {
         Optional<User> user = userRepository.findByEmail(email);
         if (user.isPresent() && passwordEncoder.matches(password,user.get().getPassword())) {
-            //Jetonul JWT semnat cu HMAC
-            String secret = "asdfSFS34wfsdfsdfSDSD32dfsddDDerQSNCK34SOWEK5354fdgdf4";
+            Dotenv env = Dotenv.configure().load();
+            String secret = env.get("SECRET_KEY_JWT");
+            final long EXPIRE_DURATION = 24 * 60 * 60 * 1000; // 24 hour
             Key hmacKey = new SecretKeySpec(Base64.getDecoder().decode(secret),
                     SignatureAlgorithm.HS256.getJcaName());
             return Jwts.builder()
                     .claim("email", user.get().getEmail())
                     .claim("password", user.get().getPassword())
-                    .setSubject("user")
+                    .setSubject(user.get().getEmail())
                     .setIssuedAt(Date.from(Instant.now()))
-                    .setExpiration(Date.from(Instant.now().plus(5l, ChronoUnit.MINUTES)))
+                    .setExpiration(new Date(System.currentTimeMillis() + EXPIRE_DURATION))
                     .signWith(hmacKey)
                     .compact();
         } else {
             throw new UserException("Please check your password and account name and try again");
+        }
+    }
+
+    public Optional<User> getUserFromToken(String token) {
+        Claims claims = validateAndDecodeToken(token);
+
+        if (claims != null) {
+            String userEmail = claims.getSubject(); // Assuming the email is stored as the subject of the token
+            Optional<User> user = userRepository.findByEmail(userEmail);
+
+            return user;
+        }
+
+        return null; // Invalid or expired token
+    }
+
+    private Claims validateAndDecodeToken(String token) {
+        try {
+            String secret = env.get("SECRET_KEY_JWT");
+            return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+        } catch (ExpiredJwtException | UnsupportedJwtException | MalformedJwtException | SignatureException | IllegalArgumentException e) {
+            // Handle token validation errors
+            return null;
         }
     }
 }
