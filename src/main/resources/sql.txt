@@ -1,3 +1,4 @@
+
 CREATE TABLE User_details(
                              id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
                              name varchar(100),
@@ -237,4 +238,244 @@ ALTER TABLE election_competitors
   RENAME TO election_candidates;
 
 ALTER TABLE education
-  RENAME COLUMN competitor_id TO candidate_id;
+=======
+CREATE TABLE User_details(
+                             id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                             name varchar(100),
+                             email varchar(100) unique,
+                             password varchar(100),
+                             cnp varchar(100) unique,
+                             series_and_number varchar(100),
+                             address_line1 varchar(100),
+                             address_line2 varchar(100),
+                             phone_number varchar(100),
+                             postal_code varchar(100),
+                             city varchar(100),
+                             state varchar(100),
+                             country varchar(100),
+                             link_CI_photo varchar(200),
+                             role varchar(100)
+);
+
+insert into User_details(name,email,password, cnp, seriesAndNumber) VALUES ('Petronel','bahnaru.petronel@gmail.com','sdfsfdrewr', 'eriwtw', 'ewjiothew');
+
+Create table Localities(
+                     id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                     name varchar(100),
+                     county varchar(100),
+                     population int,
+                     auto varchar(100),
+                     diacritics varchar(100),
+                     zip varchar(100),
+                     lat double precision,
+                     lng double precision
+);
+
+Create table Counties(
+                     id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                     name varchar(100)
+);
+
+CREATE TABLE political_party (
+  id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  name VARCHAR(100)
+);
+
+INSERT INTO political_party (name)
+VALUES ('Partidul 1'), ('Partidul 2'), ('Partidul 3'), ('Partidul 4'), ('Partidul 5'), ('Partidul 6'), ('Partidul 7'), ('Partidul 8'), ('Partidul 9'), ('Partidul 10'),('Partidul 11'), ('Partidul 12'),('Partidul 13'),('Partidul 14') ;
+INSERT INTO political_party (name)
+VALUES ('Partidul 21'), ('Partidul 22'), ('Partidul 23'), ('Partidul 24'), ('Partidul 25'), ('Partidul 26'), ('Partidul 27'), ('Partidul 28'), ('Partidul 29'), ('Partidul 0');
+
+CREATE TABLE political_party_locality (
+  political_party_id BIGINT,
+  locality_id BIGINT,
+  FOREIGN KEY (political_party_id) REFERENCES political_party(id),
+  FOREIGN KEY (locality_id) REFERENCES localities(id),
+  PRIMARY KEY (political_party_id, locality_id)
+);
+
+CREATE TABLE competitors (
+  id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  name VARCHAR(100),
+  gender VARCHAR(100),
+  position VARCHAR(100),
+  image_url VARCHAR(100),
+  birth_date VARCHAR(100),
+  description VARCHAR(500),
+  political_party_id BIGINT,
+  FOREIGN KEY (political_party_id) REFERENCES political_party(id),)
+);
+
+ALTER TABLE competitors
+ADD COLUMN locality_id BIGINT,
+ADD FOREIGN KEY (political_party_id, locality_id) REFERENCES political_party_locality(political_party_id, locality_id);
+
+ALTER TABLE competitors
+ADD COLUMN residence varchar(100),
+ADD COLUMN phone_number VARCHAR(100),
+ADD COLUMN email VARCHAR(100);
+
+CREATE TABLE education (
+  id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  faculty VARCHAR(100),
+  promotion_year int,
+  competitor_id BIGINT,
+  FOREIGN KEY (competitor_id) REFERENCES competitors(id)
+);
+
+ALTER TABLE localities
+ADD COLUMN political_party_id int;
+
+CREATE TABLE token (
+   id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  token VARCHAR(255) UNIQUE NOT NULL,
+  tokenType VARCHAR(20) NOT NULL,
+  revoked BOOLEAN NOT NULL,
+  expired BOOLEAN NOT NULL,
+  user_id INT,
+  FOREIGN KEY (user_id) REFERENCES user_details(id)
+);
+
+CREATE TABLE Reset_Password_Request(
+                                       id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                                       request_id UUID,
+                                       user_id int,
+                                       FOREIGN KEY(user_id) REFERENCES User_Details(id)
+);
+
+CREATE TABLE roles (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(20)
+);
+
+CREATE TABLE user_roles (
+    user_id INTEGER,
+    role_id INTEGER,
+    PRIMARY KEY (user_id, role_id),
+    FOREIGN KEY (user_id) REFERENCES user_details (id),
+    FOREIGN KEY (role_id) REFERENCES roles (id)
+);
+
+CREATE TABLE election (
+    election_id INT  GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    start_date TIMESTAMP NOT NULL,
+    end_date TIMESTAMP NOT NULL
+);
+
+CREATE TABLE election_competitors (
+    election_competitor_id SERIAL PRIMARY KEY,
+    election_id INT,
+    competitor_id INT,
+    FOREIGN KEY (election_id) REFERENCES election(election_id),
+    FOREIGN KEY (competitor_id) REFERENCES competitors(id)
+);
+
+CREATE TABLE vote (
+    vote_id SERIAL PRIMARY KEY,
+    user_id INT,
+    election_id INT,
+    has_voted BOOLEAN,
+    FOREIGN KEY (user_id) REFERENCES user_details(id),
+    FOREIGN KEY (election_id) REFERENCES election(election_id)
+);
+
+CREATE TABLE election_types (
+    id INT PRIMARY KEY,
+    name VARCHAR(255)
+);
+
+INSERT INTO election_types (id, name) VALUES
+(1, 'Prezidentiale'),
+(2, 'Locale'),
+(3, 'Parlamentare'),
+(4, 'Parlamentul european'),
+(5, 'Referendum');
+
+ALTER TABLE election
+ADD COLUMN type_id INT;
+
+ALTER TABLE election
+ADD CONSTRAINT fk_election_type
+FOREIGN KEY (type_id)
+REFERENCES election_types(id);
+
+ALTER TABLE competitors
+ADD COLUMN event_type_id INT;
+
+ALTER TABLE competitors
+ADD CONSTRAINT fk_election_type
+FOREIGN KEY (event_type_id)
+REFERENCES election_types(id);
+
+ALTER TABLE political_party_locality
+DROP CONSTRAINT IF EXISTS political_party_locality_locality_id_fkey;
+
+-- Add the new foreign key constraint with ON DELETE CASCADE
+ALTER TABLE political_party_locality
+ADD CONSTRAINT political_party_locality_locality_id_fkey
+FOREIGN KEY (locality_id)
+REFERENCES localities(id)
+ON DELETE CASCADE;
+
+ALTER TABLE competitors
+DROP CONSTRAINT IF EXISTS competitors_political_party_id_locality_id_fkey;
+
+-- Add the new foreign key constraint with ON DELETE CASCADE
+ALTER TABLE competitors
+ADD CONSTRAINT competitors_political_party_id_locality_id_fkey
+FOREIGN KEY (political_party_id, locality_id)
+REFERENCES political_party_locality(political_party_id, locality_id)
+ON DELETE CASCADE;
+
+-- Drop the existing foreign key constraint
+ALTER TABLE education
+DROP CONSTRAINT IF EXISTS education_competitor_id_fkey;
+
+-- Add the new foreign key constraint with ON DELETE CASCADE
+ALTER TABLE education
+ADD CONSTRAINT education_competitor_id_fkey
+FOREIGN KEY (competitor_id)
+REFERENCES competitors(id)
+ON DELETE CASCADE;
+
+ALTER TABLE election_competitors
+ADD competing_in, political_party_id INT NULL;
+
+ALTER TABLE election
+ADD type_id INT,
+ADD FOREIGN KEY (type_id) REFERENCES election_types(id);
+
+ALTER TABLE election_competitors
+ADD FOREIGN KEY (political_party_id) REFERENCES political_party(id);
+
+CREATE TABLE election_competitors (
+    election_competitor_id SERIAL PRIMARY KEY,
+    election_id BIGINT,
+    competing_in BIGINT,
+    political_party_id BIGINT,
+    competitor_id BIGINT,
+    FOREIGN KEY (election_id) REFERENCES election (election_id),
+    FOREIGN KEY (competing_in) REFERENCES localities (id),
+    FOREIGN KEY (political_party_id) REFERENCES political_party (id),
+    FOREIGN KEY (competitor_id) REFERENCES competitors (id)
+);
+
+ALTER TABLE competitors
+RENAME COLUMN competing_in TO competing_in_locality;
+
+ALTER TABLE election_competitors
+RENAME COLUMN competing_in TO competing_in_locality;
+
+ALTER TABLE election_competitors
+RENAME COLUMN competitor_id TO candidate_id;
+
+ALTER TABLE election_competitors
+RENAME COLUMN election_competitor_id TO election_candidate_id;
+
+ALTER TABLE election_competitors
+  RENAME TO election_candidates;
+
+ALTER TABLE education
+
