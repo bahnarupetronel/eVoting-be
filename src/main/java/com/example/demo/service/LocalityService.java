@@ -1,6 +1,7 @@
 package com.example.demo.service;
 import com.example.demo.model.Locality;
 import com.example.demo.repository.LocalityRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.core.io.Resource;
@@ -10,16 +11,10 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
+@Service@RequiredArgsConstructor
 public class LocalityService {
     private final LocalityRepository localityRepository;
     private final ResourceLoader resourceLoader;
-
-    @Autowired
-    public LocalityService(LocalityRepository localityRepository, ResourceLoader resourceLoader) {
-        this.localityRepository = localityRepository;
-        this.resourceLoader = resourceLoader;
-    }
 
     public void importLocalitiesFromCsv(String csvFilePath) throws IOException {
         Resource resource = resourceLoader.getResource(csvFilePath);

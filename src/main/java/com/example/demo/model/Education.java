@@ -8,9 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import jakarta.persistence.*;
 
-import java.util.Date;
-
-
 @Getter@Setter@AllArgsConstructor@NoArgsConstructor
 @Entity
 @JsonIdentityInfo(
@@ -29,6 +26,6 @@ public class Education {
     private Integer promotionYear;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "competitor_id")
-    private Competitor competitor;
+    @JoinColumn(name = "candidate_id")
+    private Candidate candidate;
 }

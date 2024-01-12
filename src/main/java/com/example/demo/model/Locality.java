@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -48,6 +49,7 @@ public class Locality {
     private double lat;
 
     @ManyToMany(mappedBy = "localities")
+    @JsonIgnore
     private List<PoliticalParty> politicalParties = new ArrayList<>();
 
 }

@@ -1,4 +1,6 @@
 package com.example.demo.model;
+import com.example.demo.enums.EnumRole;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +11,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Getter@Setter@AllArgsConstructor@NoArgsConstructor
 @Entity
@@ -27,6 +31,7 @@ public class User implements UserDetails {
     @Column(name = "email", length = 50, unique = true)
     private String email;
 
+    @JsonIgnore
     @Column(name = "password", length = 100)
     private String password;
 
@@ -60,8 +65,11 @@ public class User implements UserDetails {
     @Column(name = "link_CI_photo", length = 200)
     private String linkCIPhoto;
 
-//    @Enumerated(EnumType.STRING)
-//    private Role role;
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "user_roles",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private Set<Role> roles = new HashSet<>();
 
 //    @Override
 //    public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -73,6 +81,7 @@ public class User implements UserDetails {
         return null;
     }
 
+    @JsonIgnore
     @Override
     public String getUsername() {
         return email;

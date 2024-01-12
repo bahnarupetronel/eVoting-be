@@ -1,24 +1,25 @@
 package com.example.demo.service;
 
+import com.example.demo.dto.PoliticalPartyDTO;
 import com.example.demo.model.Locality;
 import com.example.demo.model.PoliticalParty;
 import com.example.demo.repository.LocalityRepository;
 import com.example.demo.repository.PoliticalPartyRepository;
 import com.example.demo.utils.FakePoliticalPartiesData;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Random;
 
-@Service
+@Service@RequiredArgsConstructor
 public class PoliticalPartyService {
+    @Autowired
+    private ModelMapper modelMapper;
     private final PoliticalPartyRepository politicalPartyRepository;
     private final LocalityRepository localityRepository;
-
-    public PoliticalPartyService(PoliticalPartyRepository politicalPartyRepository, LocalityRepository localityRepository) {
-        this.politicalPartyRepository = politicalPartyRepository;
-        this.localityRepository = localityRepository;
-    }
 
     public void createFakeData(){
         FakePoliticalPartiesData fakePoliticalPartiesData = new FakePoliticalPartiesData(this.politicalPartyRepository);
@@ -50,5 +51,10 @@ public class PoliticalPartyService {
                     }
                 }
         }
+    }
+
+    public void addPoliticalParty(PoliticalPartyDTO politicalPartyDTO){
+        PoliticalParty politicalParty = modelMapper.map(politicalPartyDTO, PoliticalParty.class);
+        politicalPartyRepository.save(politicalParty);
     }
 }

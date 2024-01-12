@@ -19,8 +19,8 @@ import java.util.List;
 @JsonIdentityInfo(
         generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "id")
-@Table(name = "competitors")
-public class Competitor {
+@Table(name = "candidates")
+public class Candidate {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -55,9 +55,12 @@ public class Competitor {
     @Column(name = "political_party_id")
     private Integer politicalPartyId;
 
-    @Column(name = "locality_id")
-    private Integer localityId;
+    @Column(name = "competing_in_locality")
+    private Integer competingInLocality;
 
-    @OneToMany(mappedBy = "competitor", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Education> education = new ArrayList<>();
+
+//    @OneToMany(mappedBy = "election", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<Election> election = new ArrayList<>();
 }

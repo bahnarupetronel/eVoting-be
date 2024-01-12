@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/s3")
+@RequestMapping("/api/s3")
 public class S3Controller {
     private final S3Service s3 = new S3Service();
 

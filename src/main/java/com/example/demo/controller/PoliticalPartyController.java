@@ -1,18 +1,17 @@
 package com.example.demo.controller;
 
+import com.amazonaws.services.pinpoint.model.MessageResponse;
+import com.example.demo.dto.PoliticalPartyDTO;
 import com.example.demo.model.PoliticalParty;
 import com.example.demo.repository.PoliticalPartyRepository;
 import com.example.demo.service.PoliticalPartyService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/political-parties")
+@RequestMapping("/political-party")
 public class PoliticalPartyController {
     private final PoliticalPartyRepository politicalPartyRepository;
     private final PoliticalPartyService politicalPartyService;
@@ -30,5 +29,11 @@ public class PoliticalPartyController {
     @PostMapping("/import")
     public void createFakeParties() throws Exception {
         politicalPartyService.associateLocationToParty();
+    }
+
+    @PostMapping("")
+    public ResponseEntity<?> addNewPoliticalParty(@RequestBody PoliticalPartyDTO politicalPartyDTO){
+        politicalPartyService.addPoliticalParty(politicalPartyDTO);
+        return  ResponseEntity.ok(new MessageResponse());
     }
 }

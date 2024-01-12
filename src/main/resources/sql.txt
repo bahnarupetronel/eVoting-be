@@ -102,89 +102,139 @@ CREATE TABLE Reset_Password_Request(
                                        FOREIGN KEY(user_id) REFERENCES User_Details(id)
 );
 
-Create table Patient(
-                        id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                        first_name varchar(50) NOT NULL,
-                        last_name varchar(50) NOT NULL,
-                        gender varchar(50) NOT NULL,
-                        birth_date date NOT NULL,
-                        address varchar(50) NOT NULL,
-                        personal_numeric_code varchar(13) unique NOT NULL,
-                        id_series_and_number varchar(50) NOT NULL,
-                        type_of_insurance_id int,
-                        FOREIGN KEY(type_of_insurance_id) REFERENCES Insurance_Type(id) ON DELETE CASCADE,
-                        insurance_status_id int,
-                        FOREIGN KEY(insurance_status_id) REFERENCES Insurance_Status(id) ON DELETE CASCADE,
-                        type_of_admission_id int,
-                        FOREIGN KEY(type_of_admission_id) REFERENCES Admission_Type(id) ON DELETE CASCADE,
-                        speciality_id int,
-                        FOREIGN KEY(speciality_id) REFERENCES Speciality(id) ON DELETE CASCADE,
-                        room_id int,
-                        FOREIGN KEY(room_id) REFERENCES Room(id) ON DELETE CASCADE,
-                        diagnosis_id int,
-                        FOREIGN KEY(diagnosis_id) REFERENCES Diagnosis(id) ON DELETE CASCADE,
-                        surgery_details_id int,
-                        FOREIGN KEY(surgery_details_id) REFERENCES Patient_Surgery_Details(id) ON DELETE CASCADE,
-                        history_details_id int,
-                        FOREIGN KEY(history_details_id) REFERENCES Patient_History_Details(id) ON DELETE CASCADE
+CREATE TABLE roles (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(20)
 );
 
-Create table Patient_Evolution(
-                                  id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                                  evolution_description varchar(50),
-                                  from_date date,
-                                  to_date date,
-                                  evolution_id int,
-                                  FOREIGN KEY(evolution_id) REFERENCES Patient(id) ON DELETE CASCADE
+CREATE TABLE user_roles (
+    user_id INTEGER,
+    role_id INTEGER,
+    PRIMARY KEY (user_id, role_id),
+    FOREIGN KEY (user_id) REFERENCES user_details (id),
+    FOREIGN KEY (role_id) REFERENCES roles (id)
 );
 
+CREATE TABLE election (
+    election_id INT  GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT,
+    start_date TIMESTAMP NOT NULL,
+    end_date TIMESTAMP NOT NULL
+);
 
-insert into Insurance_Type(type) values ('aa');
-insert into Insurance_Type(type) values ('bb');
-insert into Insurance_Type(type) values ('cc');
-insert into Insurance_Type(type) values ('dd');
+CREATE TABLE election_competitors (
+    election_competitor_id SERIAL PRIMARY KEY,
+    election_id INT,
+    competitor_id INT,
+    FOREIGN KEY (election_id) REFERENCES election(election_id),
+    FOREIGN KEY (competitor_id) REFERENCES competitors(id)
+);
 
+CREATE TABLE vote (
+    vote_id SERIAL PRIMARY KEY,
+    user_id INT,
+    election_id INT,
+    has_voted BOOLEAN,
+    FOREIGN KEY (user_id) REFERENCES user_details(id),
+    FOREIGN KEY (election_id) REFERENCES election(election_id)
+);
 
--- For type_of_insurance_id in Patient table
-INSERT INTO Insurance_Type (id, type) VALUES (1, 'Public');
-INSERT INTO Insurance_Type (id, type) VALUES (2, 'Private');
-INSERT INTO Insurance_Type (id, type) VALUES (3, 'None');
+CREATE TABLE election_types (
+    id INT PRIMARY KEY,
+    name VARCHAR(255)
+);
 
--- For insurance_status_id in Patient table
-INSERT INTO Insurance_Status (id, status) VALUES (1, 'Active');
-INSERT INTO Insurance_Status (id, status) VALUES (2, 'Inactive');
+INSERT INTO election_types (id, name) VALUES
+(1, 'Prezidentiale'),
+(2, 'Locale'),
+(3, 'Parlamentare'),
+(4, 'Parlamentul european'),
+(5, 'Referendum');
 
--- For type_of_admission_id in Patient table
-INSERT INTO Admission_Type (id, type) VALUES (1, 'Emergency');
-INSERT INTO Admission_Type (id, type) VALUES (2, 'Planned');
+ALTER TABLE election
+ADD COLUMN type_id INT;
 
--- For room_id in Patient table
-INSERT INTO Room (id, name, speciality_id) VALUES (1, 'Room A', 1);
-INSERT INTO Room (id, name, speciality_id) VALUES (2, 'Room B', 2);
-INSERT INTO Room (id, name, speciality_id) VALUES (3, 'Room C', 3);
-INSERT INTO Room (id, name, speciality_id) VALUES (4, 'Room D', 4);
-INSERT INTO Room (id, name, speciality_id) VALUES (5, 'Room E', 5);
-INSERT INTO Room (id, name, speciality_id) VALUES (6, 'Room F', 6);
+ALTER TABLE election
+ADD CONSTRAINT fk_election_type
+FOREIGN KEY (type_id)
+REFERENCES election_types(id);
 
--- For diagnosis_id in Patient table
-INSERT INTO Diagnosis (id, inital_diagnosis, seventy_two_hour_diagnosis, final_diagnosis) VALUES (1, 'Migraine', 'Migraine with aura', 'Chronic migraine');
-INSERT INTO Diagnosis (id, inital_diagnosis, seventy_two_hour_diagnosis, final_diagnosis) VALUES (2, 'Myocardial infarction', 'STEMI', 'STEMI with reperfusion');
-INSERT INTO Diagnosis (id, inital_diagnosis, seventy_two_hour_diagnosis, final_diagnosis) VALUES (3, 'Fracture', 'Oblique fracture of the radius', 'Oblique fracture of bone');
+ALTER TABLE competitors
+ADD COLUMN event_type_id INT;
 
--- For surgery_details_id in Patient table
-INSERT INTO Patient_Surgery_Details (id, team_of_medics, details, Date) VALUES (1, 'Dr. Smith, Dr. Johnson', 'Open heart surgery', '2022-01-01');
-INSERT INTO Patient_Surgery_Details (id, team_of_medics, details, Date) VALUES (2, 'Dr. Brown, Dr. Martinez', 'Spinal fusion surgery', '2022-02-15');
-INSERT INTO Patient_Surgery_Details (id, team_of_medics, details, Date) VALUES (3, 'Dr. Lee, Dr. Davis', 'Knee replacement surgery', '2022-03-10');
+ALTER TABLE competitors
+ADD CONSTRAINT fk_election_type
+FOREIGN KEY (event_type_id)
+REFERENCES election_types(id);
 
--- For history_details_id in Patient table
-INSERT INTO Patient_History_Details (id, heredo_collateral_antecedents, living_conditions, behaviors, background_medication, disease_history, general_clinical_examination) VALUES (1, 'None', 'Urban area, apartment', 'Nonsmoker, social drinker', 'None', 'Migraine, anxiety disorder', 'Within normal limits');
-INSERT INTO Patient_History_Details (id, heredo_collateral_antecedents, living_conditions, behaviors, background_medication, disease_history, general_clinical_examination) VALUES (2, 'Had hyperthension', 'Rural area, house', 'Nonsmoker, no alcohol consumption', 'None', 'Depression', 'Within normal limits');
-INSERT INTO Patient_History_Details (id, heredo_collateral_antecedents, living_conditions, behaviors, background_medication, disease_history, general_clinical_examination) VALUES (3, 'No significant heredo-collateral antecedents', 'Lives in a house with good conditions', 'Non-smoker, drinks occasionally', 'None', 'No significant medical history', 'Normal clinical examination');
+ALTER TABLE political_party_locality
+DROP CONSTRAINT IF EXISTS political_party_locality_locality_id_fkey;
 
+-- Add the new foreign key constraint with ON DELETE CASCADE
+ALTER TABLE political_party_locality
+ADD CONSTRAINT political_party_locality_locality_id_fkey
+FOREIGN KEY (locality_id)
+REFERENCES localities(id)
+ON DELETE CASCADE;
 
-ALTER TABLE Patient
-ADD COLUMN admission_date date NOT NULL;
+ALTER TABLE competitors
+DROP CONSTRAINT IF EXISTS competitors_political_party_id_locality_id_fkey;
 
-INSERT INTO Patient(id, first_name, last_name, gender, birth_date, address, personal_numeric_code, id_series_and_number, type_of_insurance_id, insurance_status_id, type_of_admission_id, speciality_id, room_id, diagnosis_id, surgery_details_id, history_details_id,admission_date) VALUES (1, 'John', 'Doe', 'Male', '1990-01-01', '123 Main St', '1234567890123', 'AB123456', 1, 1, 1, 1, 1, 1, 1, 1,'2023-02-12');
-INSERT INTO Patient(id, first_name, last_name, gender, birth_date, address, personal_numeric_code, id_series_and_number, type_of_insurance_id, insurance_status_id, type_of_admission_id, speciality_id, room_id, diagnosis_id, surgery_details_id, history_details_id,admission_date) VALUES (2, 'Jane', 'Smith', 'Female', '1985-05-05', '456 Elm St', '9876543210123', 'CD987654', 2, 2, 2, 2, 2, 2, 2, 2,'2023-04-15');
-INSERT INTO Patient(id, first_name, last_name, gender, birth_date, address, personal_numeric_code, id_series_and_number, type_of_insurance_id, insurance_status_id, type_of_admission_id, speciality_id, room_id, diagnosis_id, surgery_details_id, history_details_id,admission_date) VALUES (3, 'Bob', 'Johnson', 'Male', '1975-12-31', '789 Oak St', '4567890123456', 'EF456789', 3, 2, 2, 3, 3, 3, 3, 3,'2023-01-10');
+-- Add the new foreign key constraint with ON DELETE CASCADE
+ALTER TABLE competitors
+ADD CONSTRAINT competitors_political_party_id_locality_id_fkey
+FOREIGN KEY (political_party_id, locality_id)
+REFERENCES political_party_locality(political_party_id, locality_id)
+ON DELETE CASCADE;
+
+-- Drop the existing foreign key constraint
+ALTER TABLE education
+DROP CONSTRAINT IF EXISTS education_competitor_id_fkey;
+
+-- Add the new foreign key constraint with ON DELETE CASCADE
+ALTER TABLE education
+ADD CONSTRAINT education_competitor_id_fkey
+FOREIGN KEY (competitor_id)
+REFERENCES competitors(id)
+ON DELETE CASCADE;
+
+ALTER TABLE election_competitors
+ADD competing_in, political_party_id INT NULL;
+
+ALTER TABLE election
+ADD type_id INT,
+ADD FOREIGN KEY (type_id) REFERENCES election_types(id);
+
+ALTER TABLE election_competitors
+ADD FOREIGN KEY (political_party_id) REFERENCES political_party(id);
+
+CREATE TABLE election_competitors (
+    election_competitor_id SERIAL PRIMARY KEY,
+    election_id BIGINT,
+    competing_in BIGINT,
+    political_party_id BIGINT,
+    competitor_id BIGINT,
+    FOREIGN KEY (election_id) REFERENCES election (election_id),
+    FOREIGN KEY (competing_in) REFERENCES localities (id),
+    FOREIGN KEY (political_party_id) REFERENCES political_party (id),
+    FOREIGN KEY (competitor_id) REFERENCES competitors (id)
+);
+
+ALTER TABLE competitors
+RENAME COLUMN competing_in TO competing_in_locality;
+
+ALTER TABLE election_competitors
+RENAME COLUMN competing_in TO competing_in_locality;
+
+ALTER TABLE election_competitors
+RENAME COLUMN competitor_id TO candidate_id;
+
+ALTER TABLE election_competitors
+RENAME COLUMN election_competitor_id TO election_candidate_id;
+
+ALTER TABLE election_competitors
+  RENAME TO election_candidates;
+
+ALTER TABLE education
+  RENAME COLUMN competitor_id TO candidate_id;
