@@ -1,36 +1,32 @@
 package com.example.demo.service;
 
-import com.example.demo.model.Competitor;
+import com.example.demo.model.Candidate;
 import com.example.demo.model.Education;
-import com.example.demo.repository.CompetitorRepository;
+import com.example.demo.repository.CandidateRepository;
 import com.example.demo.repository.EducationRepository;
 import com.github.javafaker.Faker;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
+@Service@RequiredArgsConstructor
 public class EducationService {
     private final EducationRepository educationRepository;
-    private final CompetitorRepository competitorRepository;
-
-    public EducationService(EducationRepository educationRepository, CompetitorRepository competitorRepository) {
-        this.educationRepository = educationRepository;
-        this.competitorRepository = competitorRepository;
-    }
+    private final CandidateRepository competitorRepository;
 
     public void createEducationsForCompetitors() {
         Faker faker = new Faker();
-        List<Competitor> competitors = competitorRepository.findAll();
+        List<Candidate> candidates = competitorRepository.findAll();
         List <Education> educations = new ArrayList<>();
-        for (Competitor competitor : competitors) {
+        for (Candidate candidate : candidates) {
             int numEducations = faker.random().nextInt(1, 4); // Generăm un număr între 1 și 3
             for (int i = 0; i < numEducations; i++) {
                 Education education = new Education();
                 education.setFaculty(faker.university().name());
                 education.setPromotionYear(faker.number().numberBetween(1990, 2023));
-                education.setCompetitor(competitor);
+                education.setCandidate(candidate);
                 educations.add(education);
             }
         }

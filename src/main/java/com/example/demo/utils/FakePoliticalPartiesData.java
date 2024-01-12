@@ -4,14 +4,13 @@ package com.example.demo.utils;
 import com.example.demo.model.PoliticalParty;
 import com.example.demo.repository.PoliticalPartyRepository;
 import com.github.javafaker.Faker;
+import lombok.AllArgsConstructor;
+
 import java.util.Locale;
 
+@AllArgsConstructor
 public class FakePoliticalPartiesData {
     private final PoliticalPartyRepository politicalPartyRepository;
-
-    public FakePoliticalPartiesData(PoliticalPartyRepository politicalPartyRepository) {
-        this.politicalPartyRepository = politicalPartyRepository;
-    }
 
     public void generateFakePartyData() {
         Faker faker = new Faker(new Locale("ro"));

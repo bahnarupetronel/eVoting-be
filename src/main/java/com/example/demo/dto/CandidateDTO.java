@@ -11,7 +11,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class CompetitorDTO {
+public class CandidateDTO {
     private String name;
     private String birthDate;
     private String gender;
@@ -19,9 +19,10 @@ public class CompetitorDTO {
     private String experience;
     private String imageUrl;
     private Integer politicalPartyId;
-    private Integer localityId;
+    private Integer competingIn;
     private String residence;
     private String email;
+    private String description;
     private String phoneNumber;
     private List<EducationDTO> education;
 }

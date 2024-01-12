@@ -5,6 +5,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/competitor")
-public class CompetitorExperienceController {
+public class CandidateExperienceController {
 
 }

@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Set;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -25,5 +27,5 @@ public class UserRegisterDTO {
     private Integer countyId;
     private String country;
     private String linkCIPhoto;
-    private Role role;
+    private Set<String> role;
 }

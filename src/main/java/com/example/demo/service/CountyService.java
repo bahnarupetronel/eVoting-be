@@ -1,9 +1,12 @@
 package com.example.demo.service;
 
+import com.amazonaws.services.accessanalyzer.model.ResourceNotFoundException;
 import com.example.demo.model.County;
 import com.example.demo.repository.CountyRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.core.io.ResourceLoader;
 import java.io.BufferedReader;
@@ -12,17 +15,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-@Service
+@Service@RequiredArgsConstructor
 public class CountyService {
     private final CountyRepository countyRepository;
     private final ResourceLoader resourceLoader;
-
-    @Autowired
-    public CountyService(CountyRepository countyRepository, ResourceLoader resourceLoader){
-        this.countyRepository = countyRepository;
-        this.resourceLoader = resourceLoader;
-    }
 
     public void importCountiesFromCsv(String csvFilePath) throws IOException {
         Resource resource = resourceLoader.getResource(csvFilePath);
@@ -43,4 +41,13 @@ public class CountyService {
 
         countyRepository.saveAll(counties);
     }
+
+    public List<County> getCounties () {
+        return countyRepository.findAll(Sort.by(Sort.Direction.ASC, "name"));
+    }
+
+    public County getCountyById (Integer id) {
+        return countyRepository.findById(Long.valueOf(id)).orElseThrow(() -> new ResourceNotFoundException(new String("Localitatea cu id-ul " + id + " nu exista!")));
+    }
+
 }
