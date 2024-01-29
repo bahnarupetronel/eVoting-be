@@ -1,7 +1,6 @@
 package com.example.demo.repository;
 
 import com.example.demo.model.Candidate;
-import com.example.demo.payload.CandidateByEventResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -25,7 +24,7 @@ public interface CandidateRepository extends JpaRepository<Candidate, Long> {
     List<ArrayList<?>> findByEventTypeId(@Param("typeId") Integer eventTypeId);
 
     @Query(value = "SELECT c.id, c.name, c.position, c.competing_in_locality, p.name AS political_party_name, p.id AS political_party_id, l.name AS locality_name," +
-            "CASE WHEN elcomp.candidate_id IS NOT NULL THEN true ELSE false " +
+            "CASE WHEN (elcomp.election_id = ?3 and elcomp.candidate_id IS NOT NULL and ) THEN true ELSE false " +
             "            END AS registered" +
             "            FROM candidates c " +
             "            JOIN " +
@@ -36,5 +35,5 @@ public interface CandidateRepository extends JpaRepository<Candidate, Long> {
             "        localities l ON l.id = c.competing_in_locality" +
             "     WHERE" +
             "   event_type_id = ?1 AND c.competing_in_locality = ?2", nativeQuery = true)
-    List<ArrayList<?>> findByEventAndLocality(@Param("eventId") Integer eventId, @Param("localityId") Integer localityId);
+    List<ArrayList<?>> findByEventAndLocality(@Param("typeId") Integer typeId, @Param("localityId") Integer localityId, @Param("eventId") Integer eventId);
 }

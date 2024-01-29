@@ -3,23 +3,29 @@ package com.example.demo.controller;
 import com.example.demo.dto.ElectionDTO;
 import com.example.demo.model.Election;
 import com.example.demo.model.ElectionType;
+import com.example.demo.payload.ElectionCompetitorRequest;
 import com.example.demo.service.ElectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/election")
 public class ElectionController {
     @Autowired
     ElectionService electionService;
 
-    @GetMapping("/all")
+    @GetMapping("/published")
     @ResponseStatus(HttpStatus.OK)
-    public  List<Election> getElections(){
-        return electionService.getElections();
+    public  List<Election> getPublishedElections(){
+        return electionService.getPublishedElections();
+    }
+
+    @GetMapping("/unpublished")
+    @ResponseStatus(HttpStatus.OK)
+    public  List<Election> getUnpublishedElections(){
+        return electionService.getUnpublishedElections();
     }
 
     @GetMapping("/live")
@@ -37,14 +43,7 @@ public class ElectionController {
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public Election getById( @PathVariable("id") String id) throws NumberFormatException{
-        Long electionId = 0L;
-        try{
-            electionId   =  Long.parseLong(id);
-        }catch (NumberFormatException e) {
-            throw new NumberFormatException(new String("Evenimentul cu id-ul " + id + " nu exista! Id-ul nu are formatul corect."));
-        }
-
-        return electionService.getElectionById(electionId);
+        return electionService.getElectionById(id);
     }
 
     @GetMapping("/upcoming")
@@ -57,6 +56,12 @@ public class ElectionController {
     @ResponseStatus(HttpStatus.CREATED)
     public void addElectionEvent(@RequestBody ElectionDTO electionDTO){
         electionService.addElection(electionDTO);
+    }
+
+    @DeleteMapping("")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteCandidateFromEvent(@RequestBody Long electionId){
+        electionService.deleteElection(electionId);
     }
 
     @GetMapping("/types")

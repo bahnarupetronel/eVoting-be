@@ -477,5 +477,64 @@ RENAME COLUMN election_competitor_id TO election_candidate_id;
 ALTER TABLE election_competitors
   RENAME TO election_candidates;
 
-ALTER TABLE education
+CREATE TABLE change_password (
+    token_id SERIAL PRIMARY KEY,
+    change_password_token VARCHAR(255) NOT NULL,
+    created_date TIMESTAMP,
+    user_id BIGINT NOT NULL,
+    CONSTRAINT fk_change_password_user
+        FOREIGN KEY (user_id)
+        REFERENCES user_details(id)
+);
 
+CREATE SEQUENCE change_password_seq START 1;
+
+CREATE TABLE candidate_type (
+    id INT PRIMARY KEY,
+    name VARCHAR(255),
+    election_type_id INT,
+    FOREIGN KEY (election_type_id) REFERENCES election_types(id)
+);
+
+INSERT INTO candidate_type (id, name, election_type_id) VALUES
+(1, 'Primar', 2),
+(2, 'Presedinte Consiliu Judetean', 2),
+(3, 'Consiliu local', 2);
+
+INSERT INTO candidate_type (id, name, election_type_id) VALUES
+(4, 'Senat', 3),
+(5, 'Camera Deputatilor', 3);
+INSERT INTO candidate_type (id, name, election_type_id) VALUES
+(6, 'Presedinte', 1);
+INSERT INTO candidate_type (id, name, election_type_id) VALUES
+(7, 'Parlamentul European', 4);
+
+ALTER TABLE candidates
+ADD COLUMN candidate_type_id INT,
+ADD FOREIGN KEY (candidate_type_id) REFERENCES candidate_type(id);
+
+CREATE TABLE gender (
+    id INT PRIMARY KEY,
+    name VARCHAR(255)
+);
+
+INSERT INTO gender (id, name) VALUES
+(1, 'Barbat'),
+(2, 'Femeie'),
+(3, 'Non-Binar'),
+(4, 'Alt gen');
+
+CREATE TABLE confirm_email (
+    token_id SERIAL PRIMARY KEY,
+    confirm_email_token VARCHAR(255) NOT NULL,
+    created_date TIMESTAMP,
+    user_id BIGINT NOT NULL,
+    CONSTRAINT fk_confirm_email_user
+        FOREIGN KEY (user_id)
+        REFERENCES user_details(id)
+);
+
+CREATE SEQUENCE confirm_email_seq START 1;
+
+ALTER TABLE user_details
+ADD COLUMN isEmailConfirmed BOOLEAN DEFAULT FALSE;

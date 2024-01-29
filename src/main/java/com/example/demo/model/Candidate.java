@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -61,6 +62,13 @@ public class Candidate {
     @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Education> education = new ArrayList<>();
 
+    @Column(name = "candidate_type_id")
+    @JsonIgnore
+    private Long candidateTypeId;
+
+    @ManyToOne
+    @JoinColumn(name = "candidate_type_id", insertable = false, updatable = false)
+    private CandidateType candidateType;
 //    @OneToMany(mappedBy = "election", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<Election> election = new ArrayList<>();
 }

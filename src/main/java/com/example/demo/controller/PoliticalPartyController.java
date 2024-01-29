@@ -1,39 +1,36 @@
 package com.example.demo.controller;
 
-import com.amazonaws.services.pinpoint.model.MessageResponse;
 import com.example.demo.dto.PoliticalPartyDTO;
 import com.example.demo.model.PoliticalParty;
 import com.example.demo.repository.PoliticalPartyRepository;
 import com.example.demo.service.PoliticalPartyService;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/political-party")
+@CrossOrigin(origins = "http://localhost:3000")
+@RestController@RequiredArgsConstructor
+@RequestMapping("/api/political-party")
 public class PoliticalPartyController {
-    private final PoliticalPartyRepository politicalPartyRepository;
     private final PoliticalPartyService politicalPartyService;
 
-    public PoliticalPartyController(PoliticalPartyRepository politicalPartyRepository, PoliticalPartyService politicalPartyService) {
-        this.politicalPartyRepository = politicalPartyRepository;
-        this.politicalPartyService = politicalPartyService;
-    }
-
-    @GetMapping("/all")
+    @GetMapping("")
+    @ResponseStatus(HttpStatus.OK)
     public List<PoliticalParty> getPoliticalParties(){
-        return politicalPartyRepository.findAll();
+        return politicalPartyService.getPoliticalParties();
     }
 
     @PostMapping("/import")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void createFakeParties() throws Exception {
         politicalPartyService.associateLocationToParty();
     }
 
     @PostMapping("")
-    public ResponseEntity<?> addNewPoliticalParty(@RequestBody PoliticalPartyDTO politicalPartyDTO){
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void addNewPoliticalParty(@RequestBody PoliticalPartyDTO politicalPartyDTO){
         politicalPartyService.addPoliticalParty(politicalPartyDTO);
-        return  ResponseEntity.ok(new MessageResponse());
     }
 }

@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.amazonaws.services.qldb.model.ResourceAlreadyExistsException;
 import com.example.demo.dto.PoliticalPartyDTO;
 import com.example.demo.model.Locality;
 import com.example.demo.model.PoliticalParty;
@@ -9,6 +10,7 @@ import com.example.demo.utils.FakePoliticalPartiesData;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -55,6 +57,16 @@ public class PoliticalPartyService {
 
     public void addPoliticalParty(PoliticalPartyDTO politicalPartyDTO){
         PoliticalParty politicalParty = modelMapper.map(politicalPartyDTO, PoliticalParty.class);
+        if(politicalPartyDTO.getName() == ""){
+            throw new DataIntegrityViolationException("Incorrect input data.");
+        }
+        if( politicalPartyRepository.existsByName(politicalPartyDTO.getName())){
+            throw new ResourceAlreadyExistsException("This political party exists.");
+        }
         politicalPartyRepository.save(politicalParty);
+    }
+
+    public List<PoliticalParty> getPoliticalParties(){
+        return politicalPartyRepository.findAll();
     }
 }

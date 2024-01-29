@@ -1,6 +1,7 @@
 package com.example.demo.model;
 import com.example.demo.enums.EnumRole;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -65,6 +66,9 @@ public class User implements UserDetails {
     @Column(name = "link_CI_photo", length = 200)
     private String linkCIPhoto;
 
+    @Column(name = "is_email_confirmed", columnDefinition = "boolean default false")
+    private Boolean isEmailConfirmed;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",
             joinColumns = @JoinColumn(name = "user_id"),
@@ -89,21 +93,29 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return true;
+        return false;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return false;
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true;
+        return false;
     }
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return false;
     }
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private ChangePasswordToken changePasswordToken;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private ConfirmEmailToken confirmEmailToken;
 }

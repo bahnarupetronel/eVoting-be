@@ -10,7 +10,10 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+
+import static com.example.demo.utils.Convert.convertToLong;
 
 @Service@AllArgsConstructor
 public class ElectionCandidateService {
@@ -38,14 +41,15 @@ public class ElectionCandidateService {
         Election election = electionRepository.findById(electionCompetitorRequest.getElectionId()).orElse(null);;
         PoliticalParty politicalParty = politicalPartyRepository.findById(Math.toIntExact(electionCompetitorRequest.getPoliticalPartyId())).orElse(null);;
         Locality locality = localityRepository.findById(Math.toIntExact(electionCompetitorRequest.getCompetingInLocality())).orElse(null);;
+        ElectionCandidate electionCandidate = modelMapper.map(electionCompetitorRequest, ElectionCandidate.class);
         if(candidate != null && election != null){
-            Optional<ElectionCandidate> existingEntry = electionCandidateRepository.findByCandidateAndElection(candidate, election);
+            Optional<ElectionCandidate> existingEntry = electionCandidateRepository.findByCandidateIdAndElectionId(electionCandidate.getCandidateId(), electionCandidate.getElectionId());
 
             if (existingEntry.isPresent()) {
                 throw( new ResourceAlreadyExistsException(new String("Candidatul " + candidate.getName() + "este deja inregistrat pentru evenimentul" + election.getTitle())));
             } else {
-                ElectionCandidate electionCompetitor = new ElectionCandidate(candidate, election, politicalParty, locality);
-                electionCandidateRepository.save(electionCompetitor);
+                ElectionCandidate electionCandidateDTO = new ElectionCandidate(candidate, election, politicalParty, locality);
+                electionCandidateRepository.save(electionCandidateDTO);
             }
         }
     }
@@ -55,7 +59,7 @@ public class ElectionCandidateService {
         Candidate candidate = candidateRepository.findById(electionCompetitorRequest.getCandidateId()).orElse(null);;
         Election election = electionRepository.findById(electionCompetitorRequest.getElectionId()).orElse(null);;
         if(candidate != null && election != null){
-            Optional<ElectionCandidate> existingEntry = electionCandidateRepository.findByCandidateAndElection(candidate, election);
+            Optional<ElectionCandidate> existingEntry = electionCandidateRepository.findByCandidateIdAndElectionId(electionCompetitorRequest.getCandidateId(), electionCompetitorRequest.getElectionId());
 
             if (existingEntry.isPresent()) {
                 electionCandidateRepository.deleteById(existingEntry.get().getId());
@@ -63,5 +67,24 @@ public class ElectionCandidateService {
                 throw( new ResourceNotFoundException(new String("Candidatul " + candidate.getName() + "nu este inregistrat pentru evenimentul" + election.getTitle())));
             }
         }
+    }
+
+    public List<?> getElectionCandidatesByEvent(Long electionId){
+        return electionCandidateRepository.findByElectionId(electionId);
+    }
+
+    public List<?> getRegisteredPoliticalParties(String electionId, String localityId){
+        Long election = convertToLong(electionId);
+        Long locality = convertToLong(localityId);
+        return electionCandidateRepository.findByElectionIdAndLocalityId(election, locality);
+    }
+
+    public Boolean getRegisteredCandidatesCount(String electionId){
+        Long election = convertToLong(electionId);
+        return electionCandidateRepository.existsByElectionId(election);
+    }
+
+    public List<?> getElectionCandidates(){
+        return electionCandidateRepository.findAll();
     }
 }

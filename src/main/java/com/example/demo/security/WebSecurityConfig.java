@@ -62,7 +62,7 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors().and().csrf(csrf -> csrf.disable())
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
-                .authorizeHttpRequests() .requestMatchers("/api/user/login", "/api/user/register","/api/user/is-logged-in", "/counties/**", "/localities/**")
+                .authorizeHttpRequests() .requestMatchers("/api/user/login", "/api/user/register","/api/user/is-logged-in", "/api/user/forgot-password", "/api/user/change-password", "/counties/**", "/localities/**", "/candidate-type/**", "/gender")
                 .permitAll()
                 .anyRequest().authenticated()
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
