@@ -27,5 +27,6 @@ public class UserRegisterDTO {
     private Integer countyId;
     private String country;
     private String linkCIPhoto;
+    private boolean isEmailConfirmed;
     private Set<String> role;
 }

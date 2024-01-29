@@ -25,7 +25,6 @@ import java.util.Optional;
 public class CandidateController {
     private final CandidateService candidateService;
     private final EducationService educationService;
-    private final UserService userService;
 
     @PostMapping("/list")
     @ResponseStatus(HttpStatus.CREATED)
@@ -33,17 +32,12 @@ public class CandidateController {
         candidateService.createCandidatesFromPoliticalPartyLocality();
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Candidate> getCandidateByName(@PathVariable("id") String name) {
+    @GetMapping("/{name}")
+    @ResponseStatus(HttpStatus.OK)
+    public Candidate getCandidateByName(@PathVariable("name") String name) {
         name = name.replace("-", " ");
-        Candidate candidate = candidateService.getCandidateByName(name);
-        if (candidate != null) {
-            return ResponseEntity.ok(candidate);
-        }
-        return ResponseEntity.notFound().build();
-
+        return candidateService.getCandidateByName(name);
     }
-
 
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
@@ -54,8 +48,7 @@ public class CandidateController {
     @GetMapping("/locality/{localityId}")
     @ResponseStatus(HttpStatus.OK)
     public List<Candidate> getCandidatesByLocalityId(@PathVariable("localityId") Long localityId) {
-        List<Candidate> candidates = candidateService.getCandidatesByLocalityId(localityId);
-        return candidates;
+        return candidateService.getCandidatesByLocalityId(localityId);
     }
 
     @GetMapping("/type/{typeId}")
@@ -66,14 +59,14 @@ public class CandidateController {
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public void addNewCandidate(CandidateDTO candidateDTO){
+    public void addNewCandidate(@RequestBody CandidateDTO candidateDTO){
         candidateService.addCandidate(candidateDTO);
     }
 
-    @GetMapping("/type/{typeId}/locality/{localityId}")
+    @GetMapping("/filtered")
     @ResponseStatus(HttpStatus.OK)
-    public List<CandidateByEventAndLocalityResponse> getCandidatesByEventAndLocality(@PathVariable("typeId") Integer typeId, @PathVariable("localityId") Integer localityId) {
-        return candidateService.getCandidatesByEventAndLocality(typeId, localityId);
+    public List<CandidateByEventAndLocalityResponse> getCandidatesByEventAndLocality(@RequestParam("typeId") Integer typeId, @RequestParam("localityId") Integer localityId, @RequestParam("eventId") Integer eventId) {
+        return candidateService.getCandidatesByEventAndLocality(typeId, localityId, eventId);
     }
 
 }

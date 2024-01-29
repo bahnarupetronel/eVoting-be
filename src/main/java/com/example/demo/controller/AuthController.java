@@ -3,11 +3,13 @@ package com.example.demo.controller;
 import com.example.demo.dto.UserRegisterDTO;
 import com.example.demo.dto.UserRequestDTO;
 import com.example.demo.enums.EnumRole;
+import com.example.demo.exception.UserException;
 import com.example.demo.model.Role;
 import com.example.demo.model.User;
+import com.example.demo.payload.ChangePasswordRequest;
+import com.example.demo.payload.ForgotPasswordRequest;
 import com.example.demo.payload.UserInfoResponse;
 import com.example.demo.repository.RoleRepository;
-import com.example.demo.repository.UserRepository;
 import com.example.demo.security.jwt.JwtUtils;
 import com.example.demo.security.services.UserDetailsImpl;
 import com.example.demo.service.UserService;
@@ -25,7 +27,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -40,9 +41,6 @@ public class AuthController {
     UserService userService;
 
     @Autowired
-    UserRepository userRepository;
-
-    @Autowired
     RoleRepository roleRepository;
 
     @Autowired
@@ -50,7 +48,7 @@ public class AuthController {
 
     @PostMapping("/login")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<Object> login(@RequestBody UserRequestDTO userRequestDTO) {
+    public ResponseEntity<UserInfoResponse> login(@RequestBody UserRequestDTO userRequestDTO) {
         Authentication authentication = authenticationManager
                 .authenticate(new UsernamePasswordAuthenticationToken(userRequestDTO.getEmail(), userRequestDTO.getPassword()));
 
@@ -63,14 +61,12 @@ public class AuthController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-                .body(new UserInfoResponse(userDetails.getId(),
-                        userDetails.getEmail(),
-                        roles));
+                .body(new UserInfoResponse(userDetails.getEmail(), roles));
     }
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void registerUser(@RequestBody UserRegisterDTO userRegister) {
+    public void registerUser(@RequestBody UserRegisterDTO userRegister) throws UserException {
         //refactor
         // Create new user's account
         Set<String> strRoles = userRegister.getRole();
@@ -135,5 +131,29 @@ public class AuthController {
             e.printStackTrace();
 //            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
+    }
+
+    @PostMapping("/forgot-password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void sendEmailForPasswordChange(@RequestBody ForgotPasswordRequest forgotPasswordRequest){
+        userService.forgotPassword(forgotPasswordRequest);
+    }
+
+    @PostMapping("/change-password")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void changePassword(@RequestParam("token") String token, @RequestBody ChangePasswordRequest changePasswordRequest){
+        userService.changePassword(token, changePasswordRequest);
+    }
+
+    @PostMapping("/confirm-account")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void verifyUser(@RequestParam("token") String token){
+//        userService.verify(token);
+    }
+
+    @PostMapping("/validate-email")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void confirmAccount(HttpServletRequest request){
+        userService.confirmAccount(request);
     }
 }

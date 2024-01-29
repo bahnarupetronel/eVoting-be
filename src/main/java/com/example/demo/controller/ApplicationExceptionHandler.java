@@ -1,9 +1,10 @@
 package com.example.demo.controller;
 
 import com.amazonaws.services.accessanalyzer.model.ResourceNotFoundException;
-import com.amazonaws.services.appflow.model.ErrorInfo;
 import com.amazonaws.services.fsx.model.BadRequestException;
+import com.amazonaws.services.glue.model.EntityNotFoundException;
 import com.amazonaws.services.qldb.model.ResourceAlreadyExistsException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -30,7 +31,18 @@ public class ApplicationExceptionHandler {
     ){
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(exception.getMessage());
+                .build();
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseEntity<Object> handleEntityNotFoundException(
+            EntityNotFoundException exception,
+            WebRequest request
+    ){
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .build();
     }
 
     @ExceptionHandler(BadRequestException.class)
@@ -56,6 +68,7 @@ public class ApplicationExceptionHandler {
                 .status(HttpStatus.UNPROCESSABLE_ENTITY)
                 .body(exception.getMessage());
     }
+
     @ExceptionHandler(ResourceAlreadyExistsException.class)
     @ResponseStatus(HttpStatus.CONFLICT)
     public ResponseEntity<Object> handleResourceAlreadyExistsException(
@@ -68,4 +81,27 @@ public class ApplicationExceptionHandler {
                 .body(exception.getMessage());
     }
 
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
+    public ResponseEntity<Object> handleResourceAlreadyExistsException(
+            DataIntegrityViolationException exception,
+            WebRequest request
+    ){
+        exception.printStackTrace();
+        return ResponseEntity
+                .status(HttpStatus.UNPROCESSABLE_ENTITY)
+                .body(exception.getMessage());
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Object> handleIllegalStateException(
+            IllegalStateException exception,
+            WebRequest request
+    ){
+        exception.printStackTrace();
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(exception.getMessage());
+    }
 }

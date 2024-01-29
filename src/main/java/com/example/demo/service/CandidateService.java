@@ -92,8 +92,8 @@ public class CandidateService {
         return candidatesResponse.stream().map(candidate -> mapToCandidateByEventResponse(candidate)).toList();
     }
 
-    public List<CandidateByEventAndLocalityResponse> getCandidatesByEventAndLocality(Integer typeId, Integer localityId) {
-        List<ArrayList<?>> candidatesResponse = candidateRepository.findByEventAndLocality(typeId, localityId);
+    public List<CandidateByEventAndLocalityResponse> getCandidatesByEventAndLocality(Integer typeId, Integer localityId, Integer eventId) {
+        List<ArrayList<?>> candidatesResponse = candidateRepository.findByEventAndLocality(typeId, localityId, eventId);
 
         return candidatesResponse.stream().map(candidate -> mapToCandidateByEventAndLocalityResponse(candidate)).toList();
     }

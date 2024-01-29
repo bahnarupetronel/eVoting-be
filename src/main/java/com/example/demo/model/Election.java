@@ -22,7 +22,7 @@ public class Election {
     @Column(nullable = false)
     private String title;
 
-    @Column
+    @Column( nullable = false)
     private String description;
 
     @Column(nullable = false)
