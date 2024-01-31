@@ -14,4 +14,5 @@ public class EmailService {
     public void sendEmail(SimpleMailMessage email) {
         this.javaMailSender.send(email);
     }
+
 }

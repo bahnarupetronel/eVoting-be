@@ -4,9 +4,11 @@ import com.amazonaws.services.accessanalyzer.model.ResourceNotFoundException;
 import com.amazonaws.services.fsx.model.BadRequestException;
 import com.amazonaws.services.glue.model.EntityNotFoundException;
 import com.amazonaws.services.qldb.model.ResourceAlreadyExistsException;
+import com.stripe.exception.StripeException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -104,4 +106,29 @@ public class ApplicationExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST)
                 .body(exception.getMessage());
     }
+
+    @ExceptionHandler(StripeException.class)
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ResponseEntity<Object> handleStripeException(
+            StripeException exception,
+            WebRequest request
+    ){
+        exception.printStackTrace();
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(exception.getMessage());
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Object> handleBadCredentialsException(
+            StripeException exception,
+            WebRequest request
+    ){
+        exception.printStackTrace();
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body("Incorrect password or email!");
+    }
+
 }

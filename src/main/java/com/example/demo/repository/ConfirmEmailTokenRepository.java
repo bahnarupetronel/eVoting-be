@@ -7,5 +7,5 @@ import java.util.Optional;
 public interface ConfirmEmailTokenRepository extends JpaRepository<ConfirmEmailToken, Long> {
     ConfirmEmailToken findByConfirmEmailToken(String confirmEmailToken);
 
-    ConfirmEmailToken findByUserId(Long userId);
+    Optional<ConfirmEmailToken> findByUserId(Long userId);
 }

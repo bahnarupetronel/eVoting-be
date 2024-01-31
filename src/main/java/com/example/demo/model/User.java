@@ -63,11 +63,11 @@ public class User implements UserDetails {
     @Column(name = "country", length = 100)
     private String country;
 
-    @Column(name = "link_CI_photo", length = 200)
-    private String linkCIPhoto;
-
     @Column(name = "is_email_confirmed", columnDefinition = "boolean default false")
     private Boolean isEmailConfirmed;
+
+    @Column(name = "is_identity_verified", columnDefinition = "boolean default false")
+    private Boolean isIdentityVerified;
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "user_roles",
@@ -112,10 +112,14 @@ public class User implements UserDetails {
     }
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @Transient
     private ChangePasswordToken changePasswordToken;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    @JsonIgnore
+    @Transient
     private ConfirmEmailToken confirmEmailToken;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @Transient
+    private StripeSession stripeSession;
 }

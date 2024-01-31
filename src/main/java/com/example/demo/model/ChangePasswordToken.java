@@ -1,7 +1,6 @@
 package com.example.demo.model;
 
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -27,8 +26,7 @@ public class ChangePasswordToken {
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdDate;
 
-
-    @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
+    @OneToOne(targetEntity = User.class, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "user_id")
     @JsonIgnore
     private User user;

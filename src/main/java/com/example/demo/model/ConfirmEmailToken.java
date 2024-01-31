@@ -1,6 +1,5 @@
 package com.example.demo.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,10 +10,8 @@ import java.util.Date;
 import java.util.UUID;
 
 @Entity
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@Getter @Setter
+@AllArgsConstructor @NoArgsConstructor
 @Table(name = "confirm_email")
 public class ConfirmEmailToken {
     @Id
@@ -28,10 +25,9 @@ public class ConfirmEmailToken {
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdDate;
 
-
-    @OneToOne(targetEntity = User.class, fetch = FetchType.EAGER)
+    @OneToOne(targetEntity = User.class, fetch = FetchType.LAZY)
     @JoinColumn(nullable = false, name = "user_id")
-    @JsonBackReference
+    @JsonIgnore
     private User user;
 
     public ConfirmEmailToken(User user) {

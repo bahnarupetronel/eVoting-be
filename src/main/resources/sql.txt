@@ -537,4 +537,22 @@ CREATE TABLE confirm_email (
 CREATE SEQUENCE confirm_email_seq START 1;
 
 ALTER TABLE user_details
-ADD COLUMN isEmailConfirmed BOOLEAN DEFAULT FALSE;
+ADD COLUMN is_email_confirmed BOOLEAN DEFAULT FALSE;
+
+ALTER TABLE user_details
+ADD COLUMN is_identity_verified BOOLEAN DEFAULT FALSE;
+
+CREATE TABLE stripe_session (
+    session_id SERIAL PRIMARY KEY,
+    session_token VARCHAR(255) NOT NULL,
+    created_date TIMESTAMP,
+    user_id BIGINT NOT NULL,
+    CONSTRAINT fk_stripe_session_user
+        FOREIGN KEY (user_id)
+        REFERENCES user_details(id)
+);
+
+CREATE SEQUENCE stripe_session_seq START 1;
+
+ALTER TABLE user_details
+DROP COLUMN link_ci_photo;
