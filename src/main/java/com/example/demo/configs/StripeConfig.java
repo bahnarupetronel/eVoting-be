@@ -11,10 +11,12 @@ public class StripeConfig {
     Dotenv env = Dotenv.configure().load();
     private String secretKey;
     private String publicKey;
+    private String webhookSecret;
 
     public StripeConfig() {
-        this.secretKey = env.get("stripeSecretKey");
-        this.publicKey = env.get("stripePublicKey");
+        this.secretKey = env.get("stripeSecretKey_LIVE");
+        this.publicKey = env.get("stripePublicKey_LIVE");
+        this.webhookSecret = env.get("stripeWebhookSecret_TEST");
     }
 
 }

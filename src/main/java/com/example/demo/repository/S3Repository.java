@@ -1,4 +1,4 @@
 package com.example.demo.repository;
 
-public class S3Repository {
+public interface S3Repository {
 }

@@ -10,16 +10,19 @@ import com.example.demo.model.ConfirmEmailToken;
 import com.example.demo.model.User;
 import com.example.demo.exception.InvalidPasswordException;
 import com.example.demo.payload.ChangePasswordRequest;
-import com.example.demo.payload.ForgotPasswordRequest;
+import com.example.demo.payload.EmailRequest;
 import com.example.demo.repository.ChangePasswordTokenRepository;
 import com.example.demo.repository.ConfirmEmailTokenRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.security.jwt.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.internal.bytebuddy.implementation.bytecode.Throw;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service@RequiredArgsConstructor
 public class UserService {
@@ -46,7 +49,6 @@ public class UserService {
         user.setLocalityId(userRegisterDTO.getLocalityId());
         user.setCountyId(userRegisterDTO.getCountyId());
         user.setCountry(userRegisterDTO.getCountry());
-        user.setLinkCIPhoto(userRegisterDTO.getLinkCIPhoto());
 
         userRepository.save(user);
     }
@@ -72,8 +74,8 @@ public class UserService {
         return user;
     }
 
-    public void forgotPassword(ForgotPasswordRequest forgotPasswordRequest){
-        User user = userRepository.findByEmail(forgotPasswordRequest.getEmail()).orElseThrow(() -> new EntityNotFoundException("Eroare."));
+    public void sendForgotPasswordEmail(EmailRequest emailRequest){
+        User user = userRepository.findByEmail(emailRequest.getEmail()).orElseThrow(() -> new EntityNotFoundException("Eroare."));
         ChangePasswordToken changePasswordToken = new ChangePasswordToken(user);
         ChangePasswordToken token = changePasswordTokenRepository.findByUserId(user.getId());
         if(token!= null){
@@ -84,60 +86,90 @@ public class UserService {
         else {
             changePasswordTokenRepository.save(changePasswordToken);
         }
+        SimpleMailMessage mailMessage = createForgotPasswordEmail(user.getEmail(), changePasswordToken.getChangePasswordToken());
+        emailService.sendEmail(mailMessage);
 
-        sendForgotPasswordEmail(user.getEmail(), changePasswordToken.getChangePasswordToken());
     }
 
-    public void changePassword(String token, ChangePasswordRequest password){
+    public void sendChangePasswordEmail(String token, ChangePasswordRequest password){
         ChangePasswordToken changePasswordToken = changePasswordTokenRepository.findByChangePasswordToken(token);
-            User user = changePasswordToken.getUser();
-            user.setPassword(passwordEncoder.encode(password.getPassword()));
-            user.setChangePasswordToken(null);
-            userRepository.save(user);
-            changePasswordTokenRepository.delete(changePasswordToken);
-            sendChangePasswordConfirmation(user.getEmail());
+        User user = changePasswordToken.getUser();
+        user.setPassword(passwordEncoder.encode(password.getPassword()));
+        user.setChangePasswordToken(null);
+        userRepository.save(user);
+        changePasswordTokenRepository.delete(changePasswordToken);
+        SimpleMailMessage mailMessage = createChangePasswordEmail(user.getEmail());
+        emailService.sendEmail(mailMessage);
     }
 
-    public void confirmAccount(HttpServletRequest request){
+    public boolean sendValidateEmail(HttpServletRequest request, EmailRequest emailRequest){
         User user  = getUser(request);
-        ConfirmEmailToken confirmEmailToken = new ConfirmEmailToken(user);
-        ConfirmEmailToken token = confirmEmailTokenRepository.findByUserId(user.getId());
-        if(token!= null){
-            token.setConfirmEmailToken(confirmEmailToken.getConfirmEmailToken());
-            token.setCreatedDate(confirmEmailToken.getCreatedDate());
+        ConfirmEmailToken token = confirmEmailTokenRepository.findByUserId(user.getId()).orElse(null);
+        if(token == null){
+            token = new ConfirmEmailToken(user);
             confirmEmailTokenRepository.save(token);
         }
-        else {
-            confirmEmailTokenRepository.save(confirmEmailToken);
-        }
 
-        sendConfirmAccount(user.getEmail(), token.getConfirmEmailToken());
+        SimpleMailMessage mailMessage =  createConfirmEmailAddress(user.getEmail(), token.getConfirmEmailToken());
+        emailService.sendEmail(mailMessage);
+        return true;
     }
 
-    private void sendForgotPasswordEmail(String email, String token) {
+    public void validateEmailToken(HttpServletRequest request,  String tokenEmail) throws IllegalStateException {
+        User user  = getUser(request);
+        ConfirmEmailToken token = confirmEmailTokenRepository.findByUserId(user.getId()).orElse(null);
+
+        if(token == null)
+            throw new IllegalStateException("Eroare");
+        else if(token.getConfirmEmailToken().equals(tokenEmail) && !user.getIsEmailConfirmed()){
+            user.setIsEmailConfirmed(true);
+            user.setConfirmEmailToken(null);
+            userRepository.save(user);
+            confirmEmailTokenRepository.deleteById(token.getTokenId());
+            SimpleMailMessage mailMessage = createConfirmedEmail(user.getEmail());
+            emailService.sendEmail(mailMessage);
+        }
+    }
+
+    public boolean isEmailSent(HttpServletRequest request){
+        User user  = getUser(request);
+        Optional<ConfirmEmailToken> token = confirmEmailTokenRepository.findByUserId(user.getId());
+        if(token.isEmpty()) return false;
+        return true;
+    }
+
+    private SimpleMailMessage createForgotPasswordEmail(String email, String token) {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(email);
         mailMessage.setSubject("Schimba parola!");
         mailMessage.setText("Pentru a schimba parola, acceseaza link-ul : "
                 +"http://127.0.0.1:3000/change-password?token="+ token);
-        emailService.sendEmail(mailMessage);
+        return mailMessage;
     }
 
-    private void sendChangePasswordConfirmation(String email) {
+    private SimpleMailMessage createChangePasswordEmail(String email) {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(email);
         mailMessage.setSubject("Confirmare schimbare parola!");
         mailMessage.setText("Parola a fost schimbata. Daca nu ati schimbat parola, accesati link-ul urmator pentru a va schimba parola in siguranta : "
                 +"http://127.0.0.1:3000/forgot-password");
-        emailService.sendEmail(mailMessage);
+        return mailMessage;
     }
 
-    private void sendConfirmAccount(String email, String token) {
+    private SimpleMailMessage createConfirmEmailAddress(String email, String token) {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(email);
         mailMessage.setSubject("Confirma adresa de email a contului!");
         mailMessage.setText("Pentru a confirma adresa de email, acceseaza link-ul urmator: "
-                +"http://127.0.0.1:3000/confirm-account?token="+ token);
-        emailService.sendEmail(mailMessage);
+                +"http://127.0.0.1:3000/user/validate/email?token="+ token);
+        return mailMessage;
+    }
+
+    private SimpleMailMessage createConfirmedEmail(String email) {
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(email);
+        mailMessage.setSubject("Confirmare adresa de email!");
+        mailMessage.setText("Adresa de email a fost validata. Va multumim!");
+        return mailMessage;
     }
 }

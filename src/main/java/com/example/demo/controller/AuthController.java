@@ -7,7 +7,7 @@ import com.example.demo.exception.UserException;
 import com.example.demo.model.Role;
 import com.example.demo.model.User;
 import com.example.demo.payload.ChangePasswordRequest;
-import com.example.demo.payload.ForgotPasswordRequest;
+import com.example.demo.payload.EmailRequest;
 import com.example.demo.payload.UserInfoResponse;
 import com.example.demo.repository.RoleRepository;
 import com.example.demo.security.jwt.JwtUtils;
@@ -135,25 +135,31 @@ public class AuthController {
 
     @PostMapping("/forgot-password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void sendEmailForPasswordChange(@RequestBody ForgotPasswordRequest forgotPasswordRequest){
-        userService.forgotPassword(forgotPasswordRequest);
+    public void sendEmailForPasswordChange(@RequestBody EmailRequest emailRequest){
+        userService.sendForgotPasswordEmail(emailRequest);
     }
 
     @PostMapping("/change-password")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void changePassword(@RequestParam("token") String token, @RequestBody ChangePasswordRequest changePasswordRequest){
-        userService.changePassword(token, changePasswordRequest);
-    }
-
-    @PostMapping("/confirm-account")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void verifyUser(@RequestParam("token") String token){
-//        userService.verify(token);
+        userService.sendChangePasswordEmail(token, changePasswordRequest);
     }
 
     @PostMapping("/validate-email")
+    @ResponseStatus(HttpStatus.OK)
+    public boolean sendConfirmEmail(HttpServletRequest request, @RequestBody EmailRequest emailRequest){
+        return userService.sendValidateEmail(request, emailRequest);
+    }
+
+    @PostMapping("/email-validation-token")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void confirmAccount(HttpServletRequest request){
-        userService.confirmAccount(request);
+    public void confirmEmail(HttpServletRequest request, @RequestParam("token") String token){
+        userService.validateEmailToken(request, token);
+    }
+
+    @GetMapping("/confirm-email")
+    @ResponseStatus(HttpStatus.OK)
+    public boolean isEmailSent(HttpServletRequest request){
+        return userService.isEmailSent(request);
     }
 }
