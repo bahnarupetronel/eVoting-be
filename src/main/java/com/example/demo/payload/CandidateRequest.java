@@ -1,27 +1,27 @@
-package com.example.demo.dto;
+package com.example.demo.payload;
 
+import com.example.demo.dto.EducationDTO;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public class CandidateDTO {
+@Getter@Setter@AllArgsConstructor@RequiredArgsConstructor
+public class CandidateRequest {
     private String name;
     private String birthDate;
     private String gender;
     private String position;
-    private String experience;
     private String imageUrl;
     private Integer politicalPartyId;
-    private Integer competingIn;
+    private Integer competingInLocality;
+    private Integer candidateTypeId;
+    private Integer eventTypeId;
     private String address;
     private String email;
     private String description;
     private String phoneNumber;
+    private List<EducationDTO> education;
 }

@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -28,5 +29,6 @@ public class PoliticalPartyLocality {
 
     @ManyToOne
     @JoinColumn(name = "locality_id", insertable = false, updatable = false)
+    @JsonIgnore
     private Locality locality;
 }

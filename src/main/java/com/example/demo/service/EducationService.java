@@ -14,11 +14,11 @@ import java.util.List;
 @Service@RequiredArgsConstructor
 public class EducationService {
     private final EducationRepository educationRepository;
-    private final CandidateRepository competitorRepository;
+    private final CandidateRepository candidateRepository;
 
     public void createEducationsForCompetitors() {
         Faker faker = new Faker();
-        List<Candidate> candidates = competitorRepository.findAll();
+        List<Candidate> candidates = candidateRepository.findAll();
         List <Education> educations = new ArrayList<>();
         for (Candidate candidate : candidates) {
             int numEducations = faker.random().nextInt(1, 4); // Generăm un număr între 1 și 3
@@ -33,7 +33,22 @@ public class EducationService {
         educationRepository.saveAll(educations);
     }
 
-//    public List<Education> getEducationsByCompetitorId(Long id) {
-//        return educationRepository.findByCompetitorId(Math.toIntExact(Long.valueOf(id))).orElse(null);
-//    }
+    public void postEducationList(List<Education> educationsReq,  Candidate candidate) {
+        List<Education> educations = new ArrayList<>();
+        for (Education educationDTO : educationsReq) {
+            Education education = createEducation(educationDTO, candidate);
+            educations.add(education);
+        }
+        educationRepository.saveAll(educations);
+    }
+
+    private Education createEducation (Education educationReq, Candidate candidate){
+        Education education = new Education();
+        education.setFaculty(educationReq.getFaculty());
+        education.setPromotionYear(educationReq.getPromotionYear());
+        education.setCandidate(candidate);
+        System.out.println(education.getCandidate().getId());
+        return education;
+    }
+
 }

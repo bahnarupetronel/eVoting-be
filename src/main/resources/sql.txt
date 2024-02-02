@@ -556,3 +556,8 @@ CREATE SEQUENCE stripe_session_seq START 1;
 
 ALTER TABLE user_details
 DROP COLUMN link_ci_photo;
+
+ALTER TABLE candidates rename column residence to address;
+
+ALTER TABLE election
+DROP COLUMN title;

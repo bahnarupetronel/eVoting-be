@@ -19,9 +19,6 @@ public class Election {
     @Column(name = "election_id")
     private Long electionId;
 
-    @Column(nullable = false)
-    private String title;
-
     @Column( nullable = false)
     private String description;
 

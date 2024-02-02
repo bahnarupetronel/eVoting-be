@@ -24,8 +24,9 @@ public class Education {
     private String faculty;
 
     private Integer promotionYear;
-
+    
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "candidate_id")
     private Candidate candidate;
+
 }

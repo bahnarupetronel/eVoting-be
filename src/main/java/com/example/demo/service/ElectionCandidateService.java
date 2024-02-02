@@ -46,7 +46,7 @@ public class ElectionCandidateService {
             Optional<ElectionCandidate> existingEntry = electionCandidateRepository.findByCandidateIdAndElectionId(electionCandidate.getCandidateId(), electionCandidate.getElectionId());
 
             if (existingEntry.isPresent()) {
-                throw( new ResourceAlreadyExistsException(new String("Candidatul " + candidate.getName() + "este deja inregistrat pentru evenimentul" + election.getTitle())));
+                throw( new ResourceAlreadyExistsException(new String("Candidatul " + candidate.getName() + "este deja inregistrat pentru evenimentul" + election.getType().getName())));
             } else {
                 ElectionCandidate electionCandidateDTO = new ElectionCandidate(candidate, election, politicalParty, locality);
                 electionCandidateRepository.save(electionCandidateDTO);
@@ -64,7 +64,7 @@ public class ElectionCandidateService {
             if (existingEntry.isPresent()) {
                 electionCandidateRepository.deleteById(existingEntry.get().getId());
             } else {
-                throw( new ResourceNotFoundException(new String("Candidatul " + candidate.getName() + "nu este inregistrat pentru evenimentul" + election.getTitle())));
+                throw( new ResourceNotFoundException(new String("Candidatul " + candidate.getName() + "nu este inregistrat pentru evenimentul" +election.getType().getName())));
             }
         }
     }
