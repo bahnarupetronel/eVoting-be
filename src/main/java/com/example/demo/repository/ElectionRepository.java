@@ -24,7 +24,7 @@ public interface ElectionRepository extends JpaRepository<Election, Long> {
     @Query
     List<Election> findByPublishedFalse();
 
-    @Query("SELECT EXISTS(SELECT e.title FROM Election e WHERE e.title = ?1 AND e.typeId = ?2 AND e.startDate = ?3 AND e.endDate = ?4 )")
-    Boolean existsBy(String title, Integer typeId, LocalDateTime startDate, LocalDateTime endDate);
+    @Query("SELECT EXISTS(SELECT e.electionId FROM Election e WHERE e.typeId = ?1 AND e.startDate = ?2 AND e.endDate = ?3 )")
+    Boolean existsBy(Integer typeId, LocalDateTime startDate, LocalDateTime endDate);
 
 }

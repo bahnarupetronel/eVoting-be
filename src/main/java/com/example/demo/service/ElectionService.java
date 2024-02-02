@@ -29,7 +29,7 @@ public class ElectionService {
     }
     public Long addElection(@RequestBody ElectionDTO electionDTO){
         Election election = modelMapper.map(electionDTO, Election.class);
-        if(electionRepository.existsBy(election.getTitle(), Math.toIntExact(election.getTypeId()), election.getStartDate(), election.getEndDate())){
+        if(electionRepository.existsBy( Math.toIntExact(election.getTypeId()), election.getStartDate(), election.getEndDate())){
             throw new ResourceAlreadyExistsException("A similar event already exists. " +
                     "Please try again !");
         }

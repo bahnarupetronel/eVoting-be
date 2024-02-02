@@ -1,22 +1,22 @@
 package com.example.demo.controller;
 
-import com.example.demo.repository.PoliticalPartyLocalityRepository;
+import com.example.demo.model.PoliticalPartyLocality;
+import com.example.demo.service.PoliticalPartyLocalityService;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/political-parties-localities")
+@RequestMapping("/api/political-parties-localities")
 @AllArgsConstructor
 public class PoliticalPartyLocalityController {
-    private final PoliticalPartyLocalityRepository politicalPartyLocalityRepository;
+    private final PoliticalPartyLocalityService politicalPartyLocalityService;
 
-    @GetMapping("/all")
-    public List<Integer> getPoliticalParties(){
-        return politicalPartyLocalityRepository.getAllPoliticalPartyLocalityIds();
+    @GetMapping("")
+    @ResponseStatus(HttpStatus.OK)
+    public List<PoliticalPartyLocality> getPoliticalParties(@RequestParam("localityId") String localityId){
+        return politicalPartyLocalityService.getPoliticalPartiesByLocality(localityId);
     }
-
 }

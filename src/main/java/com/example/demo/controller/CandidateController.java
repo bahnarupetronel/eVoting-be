@@ -6,6 +6,7 @@ import com.example.demo.model.Candidate;
 import com.example.demo.model.User;
 import com.example.demo.payload.CandidateByEventAndLocalityResponse;
 import com.example.demo.payload.CandidateByEventResponse;
+import com.example.demo.payload.CandidateRequest;
 import com.example.demo.service.CandidateService;
 import com.example.demo.service.EducationService;
 import com.example.demo.service.UserService;
@@ -32,11 +33,10 @@ public class CandidateController {
         candidateService.createCandidatesFromPoliticalPartyLocality();
     }
 
-    @GetMapping("/{name}")
+    @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Candidate getCandidateByName(@PathVariable("name") String name) {
-        name = name.replace("-", " ");
-        return candidateService.getCandidateByName(name);
+    public Candidate getCandidateById(@PathVariable("id") String id) {
+        return candidateService.getCandidateById(Integer.valueOf(id));
     }
 
     @GetMapping("")
@@ -59,8 +59,8 @@ public class CandidateController {
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public void addNewCandidate(@RequestBody CandidateDTO candidateDTO){
-        candidateService.addCandidate(candidateDTO);
+    public void addNewCandidate(@RequestBody CandidateRequest candidateRequest){
+        candidateService.addCandidate(candidateRequest);
     }
 
     @GetMapping("/filtered")

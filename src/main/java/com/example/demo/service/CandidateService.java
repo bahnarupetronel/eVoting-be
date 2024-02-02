@@ -2,14 +2,19 @@ package com.example.demo.service;
 
 import com.amazonaws.services.accessanalyzer.model.ResourceNotFoundException;
 import com.example.demo.dto.CandidateDTO;
+import com.example.demo.dto.EducationDTO;
 import com.example.demo.model.*;
 import com.example.demo.payload.CandidateByEventAndLocalityResponse;
 import com.example.demo.payload.CandidateByEventResponse;
+import com.example.demo.payload.CandidateRequest;
 import com.example.demo.repository.CandidateRepository;
 import com.example.demo.repository.CountyRepository;
 import com.example.demo.repository.PoliticalPartyLocalityRepository;
+import com.example.demo.repository.PoliticalPartyRepository;
 import com.github.javafaker.Faker;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,19 +23,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-@Service
+@Service @RequiredArgsConstructor
 public class CandidateService {
-    @Autowired
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
     private final CandidateRepository candidateRepository;
     private final PoliticalPartyLocalityRepository politicalPartyLocalityRepository;
     private final CountyRepository countyRepository;
-
-    public CandidateService(CandidateRepository candidateRepository, PoliticalPartyLocalityRepository politicalPartyLocalityRepository, CountyRepository countyRepository) {
-        this.candidateRepository = candidateRepository;
-        this.politicalPartyLocalityRepository = politicalPartyLocalityRepository;
-        this.countyRepository = countyRepository;
-    }
+    private final PoliticalPartyRepository politicalPartyRepository;
+    private final EducationService educationService;
 
     public void createCandidatesFromPoliticalPartyLocality() {
         List<Candidate> newCompetitors = new ArrayList<>();
@@ -51,15 +51,13 @@ public class CandidateService {
                     .collect(Collectors.joining("\n\n"));
             competitor.setDescription(fakeDescription);
 
-            competitor.setResidence(faker.lorem().sentence());
             competitor.setPoliticalPartyId(politicalPartyLocality.getPoliticalParty().getId());
             competitor.setCompetingInLocality((int) politicalPartyLocality.getLocality().getId());
             competitor.setEmail(faker.internet().emailAddress());
             competitor.setPhoneNumber(faker.phoneNumber().phoneNumber());
             String randomCounty = counties.get(faker.random().nextInt(counties.size())).getName();
-            competitor.setResidence(randomCounty);
+            competitor.setAddress(randomCounty);
             newCompetitors.add(competitor);
-
         }
         candidateRepository.saveAll(newCompetitors);
     }
@@ -71,7 +69,9 @@ public class CandidateService {
     public Candidate getCandidateByName(String name) {
         name = name.toLowerCase().replace("-", " ");
         String finalName = name;
-        return candidateRepository.findByName(name).orElseThrow(() -> new ResourceNotFoundException(new String("Candidatul cu numele " + finalName + " nu exista!")));
+        Candidate candidate = candidateRepository.findByName(name).orElseThrow(() -> new ResourceNotFoundException(new String("Candidatul cu numele " + finalName + " nu exista!")));
+        PoliticalParty politicalParty = politicalPartyRepository.findById(candidate.getPoliticalPartyId()).orElse(null);
+        return  candidate;
     }
 
     public List<Candidate> getCandidatesByLocalityId(Long localityId) {
@@ -82,9 +82,14 @@ public class CandidateService {
         return candidateRepository.findAllCandidates();
     }
 
-    public void addCandidate(CandidateDTO candidateDTO) {
-        Candidate candidate = modelMapper.map(candidateDTO, Candidate.class);
-        candidateRepository.save(candidate);
+    public void addCandidate(CandidateRequest candidateRequest) {
+        modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+        Candidate candidate = modelMapper.map(candidateRequest, Candidate.class);
+        List <Education> educations = candidate.getEducation();
+        candidate.setEducation(null);
+        Candidate candidateResponse = candidateRepository.save(candidate);
+        System.out.println(candidateResponse.getId());
+        educationService.postEducationList(educations, candidateResponse);
     }
 
     public List<CandidateByEventResponse> getCandidatesByEventTypeId(Integer typeId) {
