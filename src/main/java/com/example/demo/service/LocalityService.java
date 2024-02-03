@@ -1,8 +1,8 @@
 package com.example.demo.service;
+import com.amazonaws.services.accessanalyzer.model.ResourceNotFoundException;
 import com.example.demo.model.Locality;
 import com.example.demo.repository.LocalityRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
@@ -10,6 +10,7 @@ import org.springframework.core.io.ResourceLoader;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service@RequiredArgsConstructor
 public class LocalityService {
@@ -45,5 +46,13 @@ public class LocalityService {
         }
 
         localityRepository.saveAll(localities);
+    }
+
+    public List<Map<String, Object>> getLocalities(){
+       return localityRepository.findAllLocalities();
+    }
+
+    public Locality getLocalityById(Integer id){
+        return localityRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(new String("Localitatea cu id-ul " + id + " nu exista!")));
     }
 }

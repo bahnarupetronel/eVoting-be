@@ -54,15 +54,6 @@ public class User implements UserDetails {
     @Column(name = "postal_code", length = 100)
     private String postalCode;
 
-    @Column(name = "locality_id")
-    private Integer localityId;
-
-    @Column(name = "county_id")
-    private Integer countyId;
-
-    @Column(name = "country", length = 100)
-    private String country;
-
     @Column(name = "is_email_confirmed", columnDefinition = "boolean default false")
     private Boolean isEmailConfirmed;
 
@@ -75,12 +66,11 @@ public class User implements UserDetails {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
-//    @Override
-//    public Collection<? extends GrantedAuthority> getAuthorities() {
-//        return List.of(new SimpleGrantedAuthority(role.name()));
-//    }
+    @Column(name = "locality_id")
+    private Integer localityId;
 
     @Override
+    @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null;
     }
@@ -92,34 +82,42 @@ public class User implements UserDetails {
     }
 
     @Override
+    @JsonIgnore
     public boolean isAccountNonExpired() {
         return false;
     }
 
     @Override
+    @JsonIgnore
     public boolean isAccountNonLocked() {
         return false;
     }
 
     @Override
+    @JsonIgnore
     public boolean isCredentialsNonExpired() {
         return false;
     }
 
     @Override
+    @JsonIgnore
     public boolean isEnabled() {
         return false;
     }
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Transient
+    @JsonIgnore
     private ChangePasswordToken changePasswordToken;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Transient
+    @JsonIgnore
     private ConfirmEmailToken confirmEmailToken;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Transient
+    @JsonIgnore
     private StripeSession stripeSession;
+
 }
