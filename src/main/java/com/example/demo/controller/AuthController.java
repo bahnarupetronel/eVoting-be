@@ -2,12 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.UserRegisterDTO;
 import com.example.demo.dto.UserRequestDTO;
-import com.example.demo.enums.EnumRole;
 import com.example.demo.exception.UserException;
-import com.example.demo.model.Role;
-import com.example.demo.model.User;
-import com.example.demo.payload.ChangePasswordRequest;
-import com.example.demo.payload.EmailRequest;
 import com.example.demo.payload.UserInfoResponse;
 import com.example.demo.repository.RoleRepository;
 import com.example.demo.security.jwt.JwtUtils;
@@ -25,9 +20,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "http://localhost:3000")
@@ -69,35 +62,35 @@ public class AuthController {
     public void registerUser(@RequestBody UserRegisterDTO userRegister) throws UserException {
         //refactor
         // Create new user's account
-        Set<String> strRoles = userRegister.getRole();
-        Set<Role> roles = new HashSet<>();
-
-        if (strRoles == null) {
-            Role userRole = roleRepository.findByName(EnumRole.ROLE_USER)
-                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-            roles.add(userRole);
-        } else {
-            strRoles.forEach(role -> {
-                switch (role) {
-                    case "admin":
-                        Role adminRole = roleRepository.findByName(EnumRole.ROLE_ADMIN)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                        roles.add(adminRole);
-
-                        break;
-                    case "mod":
-                        Role modRole = roleRepository.findByName(EnumRole.ROLE_MODERATOR)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                        roles.add(modRole);
-
-                        break;
-                    default:
-                        Role userRole = roleRepository.findByName(EnumRole.ROLE_USER)
-                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-                        roles.add(userRole);
-                }
-            });
-        }
+//        Set<String> strRoles = userRegister.getRole();
+//        Set<Role> roles = new HashSet<>();
+//
+//        if (strRoles == null) {
+//            Role userRole = roleRepository.findByName(EnumRole.ROLE_USER)
+//                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+//            roles.add(userRole);
+//        } else {
+//            strRoles.forEach(role -> {
+//                switch (role) {
+//                    case "admin":
+//                        Role adminRole = roleRepository.findByName(EnumRole.ROLE_ADMIN)
+//                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+//                        roles.add(adminRole);
+//
+//                        break;
+//                    case "mod":
+//                        Role modRole = roleRepository.findByName(EnumRole.ROLE_MODERATOR)
+//                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+//                        roles.add(modRole);
+//
+//                        break;
+//                    default:
+//                        Role userRole = roleRepository.findByName(EnumRole.ROLE_USER)
+//                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
+//                        roles.add(userRole);
+//                }
+//            });
+//        }
 
         userService.register(userRegister);
     }
@@ -109,57 +102,4 @@ public class AuthController {
             return ResponseEntity.ok().header(HttpHeaders.SET_COOKIE, cookie.toString()).body(null);
     }
 
-    @GetMapping("/details")
-    @ResponseStatus(HttpStatus.OK)
-    public User getUserDetails(HttpServletRequest request){
-        return userService.getUser(request);
-    }
-
-
-    @GetMapping("/is-logged-in")
-    @ResponseStatus(HttpStatus.OK)
-    public User isUserLoggedIn(HttpServletRequest request){
-        return userService.getUser(request);
-    }
-
-    @PostMapping("/details")
-    @ResponseStatus(HttpStatus.CREATED)
-    public void editUserDetails(HttpServletRequest request) {
-        try {
-            User user = userService.getUser(request);
-        }catch(Exception e) {
-            e.printStackTrace();
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
-    }
-
-    @PostMapping("/forgot-password")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void sendEmailForPasswordChange(@RequestBody EmailRequest emailRequest){
-        userService.sendForgotPasswordEmail(emailRequest);
-    }
-
-    @PostMapping("/change-password")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void changePassword(@RequestParam("token") String token, @RequestBody ChangePasswordRequest changePasswordRequest){
-        userService.sendChangePasswordEmail(token, changePasswordRequest);
-    }
-
-    @PostMapping("/validate-email")
-    @ResponseStatus(HttpStatus.OK)
-    public boolean sendConfirmEmail(HttpServletRequest request, @RequestBody EmailRequest emailRequest){
-        return userService.sendValidateEmail(request, emailRequest);
-    }
-
-    @PostMapping("/email-validation-token")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void confirmEmail(HttpServletRequest request, @RequestParam("token") String token){
-        userService.validateEmailToken(request, token);
-    }
-
-    @GetMapping("/confirm-email")
-    @ResponseStatus(HttpStatus.OK)
-    public boolean isEmailSent(HttpServletRequest request){
-        return userService.isEmailSent(request);
-    }
 }

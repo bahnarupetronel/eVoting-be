@@ -485,6 +485,7 @@ CREATE TABLE change_password (
     CONSTRAINT fk_change_password_user
         FOREIGN KEY (user_id)
         REFERENCES user_details(id)
+         ON DELETE CASCADE
 );
 
 CREATE SEQUENCE change_password_seq START 1;
@@ -532,6 +533,7 @@ CREATE TABLE confirm_email (
     CONSTRAINT fk_confirm_email_user
         FOREIGN KEY (user_id)
         REFERENCES user_details(id)
+        ON DELETE CASCADE
 );
 
 CREATE SEQUENCE confirm_email_seq START 1;
@@ -550,6 +552,7 @@ CREATE TABLE stripe_session (
     CONSTRAINT fk_stripe_session_user
         FOREIGN KEY (user_id)
         REFERENCES user_details(id)
+         ON DELETE CASCADE
 );
 
 CREATE SEQUENCE stripe_session_seq START 1;
@@ -561,3 +564,6 @@ ALTER TABLE candidates rename column residence to address;
 
 ALTER TABLE election
 DROP COLUMN title;
+
+ALTER TABLE user_details
+DROP COLUMN county_id;

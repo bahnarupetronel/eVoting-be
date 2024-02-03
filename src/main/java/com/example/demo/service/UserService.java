@@ -3,10 +3,12 @@ package com.example.demo.service;
 import com.amazonaws.services.accessanalyzer.model.ResourceNotFoundException;
 import com.amazonaws.services.glue.model.EntityNotFoundException;
 import com.amazonaws.services.qldb.model.ResourceAlreadyExistsException;
+import com.example.demo.dto.UserEditDTO;
 import com.example.demo.dto.UserRegisterDTO;
 import com.example.demo.exception.UserException;
 import com.example.demo.model.ChangePasswordToken;
 import com.example.demo.model.ConfirmEmailToken;
+import com.example.demo.model.Election;
 import com.example.demo.model.User;
 import com.example.demo.exception.InvalidPasswordException;
 import com.example.demo.payload.ChangePasswordRequest;
@@ -17,7 +19,9 @@ import com.example.demo.repository.UserRepository;
 import com.example.demo.security.jwt.JwtUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.modelmapper.internal.bytebuddy.implementation.bytecode.Throw;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,6 +30,8 @@ import java.util.Optional;
 
 @Service@RequiredArgsConstructor
 public class UserService {
+    @Autowired
+    private ModelMapper modelMapper;
     private static final int MIN_PASSWORD_LENGTH = 8;
     private final EmailService emailService;
     private final ChangePasswordTokenRepository changePasswordTokenRepository;
@@ -36,19 +42,7 @@ public class UserService {
 
     public void register(UserRegisterDTO userRegisterDTO) throws UserException {
         validateUser(userRegisterDTO);
-        User user = new User();
-        user.setEmail(userRegisterDTO.getEmail());
-        user.setPassword(passwordEncoder.encode(userRegisterDTO.getPassword()));
-        user.setName(userRegisterDTO.getName());
-        user.setCnp(userRegisterDTO.getCnp());
-        user.setSeriesAndNumber(userRegisterDTO.getSeriesAndNumber());
-        user.setAddressLine1(userRegisterDTO.getAddressLine1());
-        user.setAddressLine2(userRegisterDTO.getAddressLine2());
-        user.setPhoneNumber(userRegisterDTO.getPhoneNumber());
-        user.setPostalCode(userRegisterDTO.getPostalCode());
-        user.setLocalityId(userRegisterDTO.getLocalityId());
-        user.setCountyId(userRegisterDTO.getCountyId());
-        user.setCountry(userRegisterDTO.getCountry());
+        User user = modelMapper.map(userRegisterDTO, User.class);
 
         userRepository.save(user);
     }
@@ -57,6 +51,11 @@ public class UserService {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new ResourceAlreadyExistsException("An account with this email address already exists. " +
                     "Please try logging in or use a different email address");
+        }
+
+        if (userRepository.existsByCnp(user.getCnp())) {
+            throw new ResourceAlreadyExistsException("An account with this cnp already exists. " +
+                    "Please try logging in that account or change the password if you forgot it");
         }
 
         if (user.getPassword().length() < MIN_PASSWORD_LENGTH) {
@@ -72,6 +71,39 @@ public class UserService {
             user = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException(new String("Userul nu exista")));;
         }
         return user;
+    }
+
+    public void updateUser(HttpServletRequest request, UserEditDTO userEditDTO) {
+        User userById = userRepository.findById(userEditDTO.getId()).orElse(null);
+        User userByCnp = userRepository.findByCnp(userEditDTO.getCnp()).orElse(null);
+        String jwt = jwtUtils.getJwtFromCookies(request);
+        User userByEmail = null;
+
+        if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
+            String email = jwtUtils.getEmailFromJwtToken(jwt);
+            userByEmail = userRepository.findByEmail(email).orElseThrow(() -> new ResourceNotFoundException(new String("Userul nu exista")));;
+        }
+
+        if(userById != null  && userByEmail != null){
+            if(userById.getId() != userByEmail.getId()){
+                throw new IllegalStateException(new String("Adresa de email sau cnp-ul sunt deja folosite."));
+            }
+            if(userByCnp != null && userById.getId() != userByCnp.getId()){
+             throw new IllegalStateException(new String("Adresa de email sau cnp-ul sunt deja folosite."));
+            }
+        }
+
+        User newUser  = modelMapper.map(userEditDTO, User.class);
+        if(userById.getEmail().equals(userByEmail.getEmail())){
+            newUser.setIsEmailConfirmed(userById.getIsEmailConfirmed());
+        }
+        else newUser.setIsEmailConfirmed(false);
+        newUser.setIsIdentityVerified(userById.getIsIdentityVerified());
+        newUser.setConfirmEmailToken(null);
+        newUser.setStripeSession(null);
+        newUser.setChangePasswordToken(null);
+        newUser.setPassword(userById.getPassword());
+        userRepository.save(newUser);
     }
 
     public void sendForgotPasswordEmail(EmailRequest emailRequest){
@@ -104,6 +136,9 @@ public class UserService {
 
     public boolean sendValidateEmail(HttpServletRequest request, EmailRequest emailRequest){
         User user  = getUser(request);
+        if(!emailRequest.getEmail().equals(user.getEmail())){
+            throw new IllegalStateException(new String("Eroare"));
+        }
         ConfirmEmailToken token = confirmEmailTokenRepository.findByUserId(user.getId()).orElse(null);
         if(token == null){
             token = new ConfirmEmailToken(user);
@@ -119,9 +154,9 @@ public class UserService {
         User user  = getUser(request);
         ConfirmEmailToken token = confirmEmailTokenRepository.findByUserId(user.getId()).orElse(null);
 
-        if(token == null)
+        if(token == null && !user.getIsEmailConfirmed())
             throw new IllegalStateException("Eroare");
-        else if(token.getConfirmEmailToken().equals(tokenEmail) && !user.getIsEmailConfirmed()){
+        else if(token != null && token.getConfirmEmailToken().equals(tokenEmail) && !user.getIsEmailConfirmed()){
             user.setIsEmailConfirmed(true);
             user.setConfirmEmailToken(null);
             userRepository.save(user);
