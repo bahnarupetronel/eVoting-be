@@ -4,6 +4,7 @@ import com.example.demo.dto.ElectionDTO;
 import com.example.demo.model.Election;
 import com.example.demo.model.ElectionType;
 import com.example.demo.payload.ElectionCompetitorRequest;
+import com.example.demo.payload.ElectionPublish;
 import com.example.demo.service.ElectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -54,9 +55,16 @@ public class ElectionController {
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.CREATED)
-    public void addElectionEvent(@RequestBody ElectionDTO electionDTO){
+    public void addEvent(@RequestBody ElectionDTO electionDTO){
         electionService.addElection(electionDTO);
     }
+
+    @PostMapping("/publish")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void publishEvent(@RequestBody ElectionPublish electionPublish){
+        electionService.publishEvent(electionPublish);
+    }
+
 
     @DeleteMapping("")
     @ResponseStatus(HttpStatus.NO_CONTENT)

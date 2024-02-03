@@ -9,6 +9,7 @@ import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.identity.VerificationSession;
 import com.stripe.param.identity.VerificationSessionCreateParams;
+import com.stripe.param.identity.VerificationSessionRetrieveParams;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -31,8 +32,10 @@ public class StripeService {
 
         VerificationSession verificationSession = getStripeVerificationSession(user);
 
-        if(verificationSession != null)
+        if(verificationSession != null){
+            isDocumentMatching(verificationSession, user);
             return verificationSession.toJson();
+        }
 
         VerificationSessionCreateParams params = createSessionParams();
 
@@ -45,14 +48,8 @@ public class StripeService {
     public String getVerificationSession(HttpServletRequest request) throws StripeException {
         Stripe.apiKey = stripeConfig.getSecretKey();
         User user = userService.getUser(request);
-
         VerificationSession verificationSession = getStripeVerificationSession(user);
-        System.out.println(verificationSession.getStatus());
-
-        if(verificationSession.getStatus().equals("verified")){
-            user.setIsIdentityVerified(true);
-            userRepository.save(user);
-        }
+        isDocumentMatching(verificationSession, user);
         return verificationSession.toJson();
     }
 
@@ -73,9 +70,34 @@ public class StripeService {
             throw new EntityNotFoundException(("This action can't be completed"));
         }
         StripeSession stripeSession = stripeSessionRepository.findByUser(user);
+        VerificationSessionRetrieveParams params = VerificationSessionRetrieveParams.builder()
+                .addExpand("verified_outputs")
+                .build();
 
-        if(stripeSession != null)
-              return VerificationSession.retrieve(stripeSession.getSessionToken());
+        VerificationSession verificationSession = null;
+        if(stripeSession != null){
+            return VerificationSession.retrieve(stripeSession.getSessionToken(), params, null);
+        }
         return null;
+    }
+
+    private void isDocumentMatching(VerificationSession verificationSession, User user) {
+        if(verificationSession.getStatus().equals("verified")){
+            String firstName = verificationSession.getVerifiedOutputs().getFirstName().toLowerCase();
+            String lastName = verificationSession.getVerifiedOutputs().getLastName().toLowerCase();
+            String firstNameUser = user.getFirstName().toLowerCase();
+            String lastNameUser = user.getLastName().toLowerCase();
+
+            if(firstName.equals(firstNameUser) && lastName.equals(lastNameUser)){
+                user.setIsIdentityVerified(true);
+                user.setStripeSession(null);
+                userRepository.save(user);
+                StripeSession stripeSession = stripeSessionRepository.findByUser(user);
+                stripeSessionRepository.deleteById(stripeSession.getSessionId());
+            }
+            else {
+                throw new EntityNotFoundException(new String("Datele de pe document nu corespund cu datele userului."));
+            }
+        }
     }
 }

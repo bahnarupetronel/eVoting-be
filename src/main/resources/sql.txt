@@ -567,3 +567,10 @@ DROP COLUMN title;
 
 ALTER TABLE user_details
 DROP COLUMN county_id;
+
+ALTER TABLE user_details
+DROP COLUMN old_column;
+
+ALTER TABLE user_details
+ADD COLUMN first_name VARCHAR(255),
+ADD COLUMN last_name VARCHAR(255);

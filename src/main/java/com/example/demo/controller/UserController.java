@@ -1,7 +1,6 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.UserEditDTO;
-import com.example.demo.dto.UserRegisterDTO;
+import com.example.demo.payload.UserEditDTO;
 import com.example.demo.model.User;
 import com.example.demo.payload.ChangePasswordRequest;
 import com.example.demo.payload.EmailRequest;

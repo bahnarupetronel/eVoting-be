@@ -47,7 +47,6 @@ public class EducationService {
         education.setFaculty(educationReq.getFaculty());
         education.setPromotionYear(educationReq.getPromotionYear());
         education.setCandidate(candidate);
-        System.out.println(education.getCandidate().getId());
         return education;
     }
 

@@ -1,7 +1,7 @@
 package com.example.demo.controller;
 
-import com.example.demo.dto.UserRegisterDTO;
-import com.example.demo.dto.UserRequestDTO;
+import com.example.demo.payload.UserRegisterDTO;
+import com.example.demo.payload.UserRequestDTO;
 import com.example.demo.exception.UserException;
 import com.example.demo.payload.UserInfoResponse;
 import com.example.demo.repository.RoleRepository;
