@@ -5,6 +5,7 @@ import com.amazonaws.services.qldb.model.ResourceAlreadyExistsException;
 import com.example.demo.dto.ElectionDTO;
 import com.example.demo.model.Election;
 import com.example.demo.model.ElectionType;
+import com.example.demo.payload.ElectionPublish;
 import com.example.demo.repository.ElectionRepository;
 import com.example.demo.repository.ElectionTypesRepository;
 import org.modelmapper.ModelMapper;
@@ -27,14 +28,19 @@ public class ElectionService {
         this.electionRepository = electionRepository;
         this.electionTypesRepository = electionTypesRepository;
     }
-    public Long addElection(@RequestBody ElectionDTO electionDTO){
+    public void addElection(ElectionDTO electionDTO){
         Election election = modelMapper.map(electionDTO, Election.class);
         if(electionRepository.existsBy( Math.toIntExact(election.getTypeId()), election.getStartDate(), election.getEndDate())){
             throw new ResourceAlreadyExistsException("A similar event already exists. " +
                     "Please try again !");
         }
-        Election createdElection = electionRepository.save(election);
-        return createdElection.getElectionId();
+        electionRepository.save(election);
+    }
+
+    public void publishEvent(ElectionPublish electionPublish){
+        Election election = electionRepository.getById(electionPublish.getElectionId());
+        election.setPublished(true);
+        electionRepository.save(election);
     }
 
     public List<Election> getPublishedElections() {
@@ -44,7 +50,6 @@ public class ElectionService {
     public List<Election> getUnpublishedElections() {
         return electionRepository.findByPublishedFalse();
     }
-
 
     public List<Election> getLiveElections() {
         return electionRepository.findLiveElections(getLocalDateTime());

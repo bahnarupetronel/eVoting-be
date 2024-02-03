@@ -54,6 +54,7 @@ public class Candidate {
     private String email;
 
     @Column(name = "political_party_id")
+    @JsonIgnore
     private Integer politicalPartyId;
 
     @Column(name = "competing_in_locality")
@@ -75,7 +76,13 @@ public class Candidate {
     private CandidateType candidateType;
 
     @ManyToOne
+    @JoinColumn(name = "political_party_id", insertable = false, updatable = false)
+    private PoliticalParty politicalParty;
+
+
+    @ManyToOne
     @JoinColumn(name = "event_type_id", insertable = false, updatable = false)
+    @JsonIgnore
     private ElectionType eventType;
 
 //    @OneToMany(mappedBy = "election", cascade = CascadeType.ALL, orphanRemoval = true)
