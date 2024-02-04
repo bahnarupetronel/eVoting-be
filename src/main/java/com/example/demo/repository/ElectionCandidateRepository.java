@@ -1,20 +1,25 @@
 package com.example.demo.repository;
 
 import com.example.demo.model.ElectionCandidate;
+import com.example.demo.payload.RegisteredCandidates;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 public interface ElectionCandidateRepository extends JpaRepository<ElectionCandidate, Long> {
     Optional<ElectionCandidate> findByCandidateIdAndElectionId(Long candidateId, Long electionId);
 
-//    @Query(value = "SELECT e FROM election_candidates e where e.election_id = ?1 and e.competing_in_locality = ?2", nativeQuery = true)
-    List<?> findByElectionIdAndLocalityIdAndPoliticalPartyId(@Param("electionId") Long electionId, @Param("localityId") Long localityId, @Param("politicalPartyId") Long politicalPartyId);
-
-    List<?> findByElectionIdAndLocalityId(@Param("electionId") Long electionId, @Param("localityId") Long localityId);
+    @Query(value = "SELECT c.id, c.name, p.name, e.election_candidate_id FROM election_candidates e " +
+            "join candidates c " +
+            "on e.candidate_id = c.id " +
+            "join political_party p" +
+            " on p.id = e.political_party_id " +
+            "where e.election_id = ?1 and e.competing_in_locality = ?2 and c.candidate_type_id = ?3 ", nativeQuery = true)
+    List<ArrayList<?>> findRegisteredCandidates(@Param("electionId") Long electionId, @Param("localityId") Long localityId, @Param("typeId") Long typeId);
 
     @Query(value = "SELECT e FROM election_candidates e where e.election_id = ?1", nativeQuery = true)
     List<ElectionCandidate>  findByElectionId(@Param("electionId") Long electionId);

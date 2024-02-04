@@ -65,8 +65,7 @@ public class CandidateController {
 
     @GetMapping("/filtered")
     @ResponseStatus(HttpStatus.OK)
-    public List<CandidateByEventAndLocalityResponse> getCandidatesByEventAndLocality(@RequestParam("typeId") Integer typeId, @RequestParam("localityId") Integer localityId, @RequestParam("eventId") Integer eventId) {
-        return candidateService.getCandidatesByEventAndLocality(typeId, localityId, eventId);
+    public List<CandidateByEventAndLocalityResponse> getCandidatesByEventAndLocality(@RequestParam("typeId") Integer typeId, @RequestParam("localityId") Integer localityId, @RequestParam("eventId") Integer eventId,@RequestParam("candidateTypeId") Integer candidateTypeId) {
+        return candidateService.getCandidatesByEventAndLocality(typeId, localityId, eventId, candidateTypeId);
     }
-
 }
