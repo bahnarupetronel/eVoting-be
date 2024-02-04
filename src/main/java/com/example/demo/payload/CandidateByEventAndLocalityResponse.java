@@ -11,8 +11,8 @@ public class CandidateByEventAndLocalityResponse {
     private String name;
     private String position;
     private Long competingInLocality;
+    private Long electionId;
     private String politicalParty;
     private Integer politicalPartyId;
-    private String locality;
     private Boolean registered;
 }

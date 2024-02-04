@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.example.demo.model.ElectionCandidate;
 import com.example.demo.payload.ElectionCompetitorRequest;
+import com.example.demo.payload.RegisteredCandidates;
 import com.example.demo.service.ElectionCandidateService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,8 +30,8 @@ public class ElectionCandidateController {
 
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
-    public List<?> getRegisteredPoliticalParties(@RequestParam("election") String electionId, @RequestParam("locality") String localityId){
-        return electionCandidateService.getRegisteredPoliticalParties(electionId, localityId);
+    public List<RegisteredCandidates> getRegisteredPoliticalParties(@RequestParam("election") String electionId, @RequestParam("locality") String localityId, @RequestParam("typeId") String typeId){
+        return electionCandidateService.getRegisteredPoliticalParties(electionId, localityId, typeId);
     }
 
     @GetMapping("/populated")

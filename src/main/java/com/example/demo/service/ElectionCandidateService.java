@@ -3,13 +3,16 @@ package com.example.demo.service;
 import com.amazonaws.services.accessanalyzer.model.ResourceNotFoundException;
 import com.amazonaws.services.qldb.model.ResourceAlreadyExistsException;
 import com.example.demo.model.*;
+import com.example.demo.payload.CandidateByEventAndLocalityResponse;
 import com.example.demo.payload.ElectionCompetitorRequest;
+import com.example.demo.payload.RegisteredCandidates;
 import com.example.demo.repository.*;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -73,10 +76,12 @@ public class ElectionCandidateService {
         return electionCandidateRepository.findByElectionId(electionId);
     }
 
-    public List<?> getRegisteredPoliticalParties(String electionId, String localityId){
+    public List<RegisteredCandidates> getRegisteredPoliticalParties(String electionId, String localityId, String typeId){
         Long election = convertToLong(electionId);
         Long locality = convertToLong(localityId);
-        return electionCandidateRepository.findByElectionIdAndLocalityId(election, locality);
+        Long type = convertToLong(typeId);
+        List<ArrayList<?>> candidatesResponse = electionCandidateRepository.findRegisteredCandidates(election, locality, type);
+        return candidatesResponse.stream().map(candidate -> mapToRegisteredCandidate(candidate)).toList();
     }
 
     public Boolean getRegisteredCandidatesCount(String electionId){
@@ -86,5 +91,14 @@ public class ElectionCandidateService {
 
     public List<?> getElectionCandidates(){
         return electionCandidateRepository.findAll();
+    }
+
+    private RegisteredCandidates mapToRegisteredCandidate(ArrayList<?> candidate) {
+        return  new RegisteredCandidates().builder()
+                .candidateId((Integer) candidate.get(0))
+                .candidateName((String) candidate.get(1))
+                .politicalParty((String) candidate.get(2))
+                .electionCandidateId((Integer) candidate.get(3))
+                .build();
     }
 }

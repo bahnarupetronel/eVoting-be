@@ -65,7 +65,6 @@ public class ElectionController {
         electionService.publishEvent(electionPublish);
     }
 
-
     @DeleteMapping("")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteCandidateFromEvent(@RequestBody Long electionId){

@@ -97,8 +97,8 @@ public class CandidateService {
         return candidatesResponse.stream().map(candidate -> mapToCandidateByEventResponse(candidate)).toList();
     }
 
-    public List<CandidateByEventAndLocalityResponse> getCandidatesByEventAndLocality(Integer typeId, Integer localityId, Integer eventId) {
-        List<ArrayList<?>> candidatesResponse = candidateRepository.findByEventAndLocality(typeId, localityId, eventId);
+    public List<CandidateByEventAndLocalityResponse> getCandidatesByEventAndLocality(Integer typeId, Integer localityId, Integer eventId, Integer candidateTypeId) {
+        List<ArrayList<?>> candidatesResponse = candidateRepository.findByEventAndLocality(typeId, localityId, eventId, candidateTypeId);
 
         return candidatesResponse.stream().map(candidate -> mapToCandidateByEventAndLocalityResponse(candidate)).toList();
     }
@@ -110,7 +110,7 @@ public class CandidateService {
                 .competingInLocality((Long) candidate.get(3))
                 .politicalParty((String) candidate.get(4))
                 .politicalPartyId((Integer) candidate.get(5))
-                .locality((String) candidate.get(6))
+                .electionId((Long) candidate.get(6))
                 .registered((Boolean) candidate.get(7))
                 .build();
     }
