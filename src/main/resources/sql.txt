@@ -569,7 +569,7 @@ ALTER TABLE user_details
 DROP COLUMN county_id;
 
 ALTER TABLE user_details
-DROP COLUMN old_column;
+DROP COLUMN role;
 
 ALTER TABLE user_details
 ADD COLUMN first_name VARCHAR(255),
@@ -605,6 +605,15 @@ INSERT INTO user_roles (user_id, role_id) VALUES (2, 2);
 ALTER TABLE election
 ADD COLUMN law_text VARCHAR(255) NULL;
 
+ALTER TABLE election
+ADD COLUMN proposed_law_text VARCHAR(255) NULL;
+
+ALTER TABLE user_details
+ADD COLUMN county VARCHAR(255) NULL;
+
+ALTER TABLE user_details
+ADD COLUMN locality VARCHAR(255) NULL;
+
 CREATE TABLE referendum_options (
     option_id SERIAL PRIMARY KEY,
     option_name VARCHAR(20) NOT NULL
@@ -621,3 +630,5 @@ CREATE TABLE vote_referendum (
     FOREIGN KEY (election_id) REFERENCES election(election_id),
     FOREIGN KEY (option_id) REFERENCES referendum_options(option_id)
 );
+
+insert into candidate_type (id, name, election_type_id) values (9, 'Referendum', 5);
