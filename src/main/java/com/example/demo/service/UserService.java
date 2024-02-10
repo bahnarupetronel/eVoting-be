@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.amazonaws.services.accessanalyzer.model.ResourceNotFoundException;
 import com.amazonaws.services.glue.model.EntityNotFoundException;
 import com.amazonaws.services.qldb.model.ResourceAlreadyExistsException;
+import com.example.demo.model.Locality;
 import com.example.demo.payload.UserEditDTO;
 import com.example.demo.payload.UserRegisterDTO;
 import com.example.demo.exception.UserException;
@@ -37,6 +38,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final JwtUtils jwtUtils;
+    private final LocalityService localityService;
 
     public void register(UserRegisterDTO userRegisterDTO) throws UserException {
         validateUser(userRegisterDTO);
@@ -92,16 +94,34 @@ public class UserService {
         }
 
         User newUser  = modelMapper.map(userEditDTO, User.class);
-        if(userById.getEmail().equals(userByEmail.getEmail())){
+        if(userById.getEmail().equals(newUser.getEmail())){
             newUser.setIsEmailConfirmed(userById.getIsEmailConfirmed());
         }
         else newUser.setIsEmailConfirmed(false);
-        newUser.setIsIdentityVerified(userById.getIsIdentityVerified());
+
+        if(userById.getFirstName().equals(newUser.getFirstName()) && userById.getLastName().equals(newUser.getLastName())){
+            newUser.setIsIdentityVerified(userById.getIsIdentityVerified());
+        }else   newUser.setIsIdentityVerified(false);
+
+
         newUser.setConfirmEmailToken(null);
         newUser.setStripeSession(null);
         newUser.setChangePasswordToken(null);
         newUser.setPassword(userById.getPassword());
         userRepository.save(newUser);
+    }
+
+    public Boolean isUserAllowedToVote(HttpServletRequest request){
+        User user = getUser(request);
+        if(!user.getIsIdentityVerified() || !user.getIsEmailConfirmed()){
+            return false;
+        }
+        return true;
+    }
+
+    public Locality getAddress(HttpServletRequest request) {
+        User user = getUser(request);
+        return localityService.getLocalityById(user.getLocalityId());
     }
 
     public void sendForgotPasswordEmail(EmailRequest emailRequest){

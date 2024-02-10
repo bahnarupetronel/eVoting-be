@@ -30,7 +30,7 @@ public class PoliticalPartyService {
 
     public void associateLocationToParty() throws Exception {
         // Assuming you have the list of political party IDs and locality IDs
-        List<Integer> politicalPartyIds = politicalPartyRepository.getAllPoliticalPartyIds(); // Replace with the method to fetch political party IDs from your repository
+        List<Long> politicalPartyIds = politicalPartyRepository.getAllPoliticalPartyIds(); // Replace with the method to fetch political party IDs from your repository
         List<Integer> localityIds = localityRepository.getAllLocalityIds(); // Replace with the method to fetch locality IDs from your repository
 
         // Define the number of associations you want to create for each party and locality
@@ -38,11 +38,11 @@ public class PoliticalPartyService {
 
         Random random = new Random();
 
-        for (Integer partyId : politicalPartyIds) {
+        for (Long partyId : politicalPartyIds) {
             if(partyId > 105)
                 for (int i = 0; i < associationsPerPartyLocality; i++) {
                     Integer localityId = localityIds.get(random.nextInt(localityIds.size()));
-                    PoliticalParty politicalParty = politicalPartyRepository.findById(partyId).orElse(null); // Replace with your repository method to fetch political party by ID
+                    PoliticalParty politicalParty = politicalPartyRepository.findById(Math.toIntExact(partyId)).orElse(null); // Replace with your repository method to fetch political party by ID
                     Locality locality = localityRepository.findById(localityId).orElse(null); // Replace with your repository method to fetch locality by ID
 
                     if (politicalParty != null && locality != null) {

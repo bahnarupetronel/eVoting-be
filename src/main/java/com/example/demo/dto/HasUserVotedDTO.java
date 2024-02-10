@@ -5,9 +5,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Getter@Setter@AllArgsConstructor@NoArgsConstructor
-public class VoteDTO {
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class HasUserVotedDTO {
     private Long electionId;
     private Long candidateTypeId;
-    private Long candidateId;
 }

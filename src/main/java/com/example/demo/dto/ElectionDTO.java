@@ -15,5 +15,5 @@ public class ElectionDTO {
     private LocalDateTime  endDate;
     private Long typeId;
     private boolean published;
-
+    private String lawText;
 }

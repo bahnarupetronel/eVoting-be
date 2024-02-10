@@ -51,5 +51,4 @@ public class Locality {
     @ManyToMany(mappedBy = "localities")
     @JsonIgnore
     private List<PoliticalParty> politicalParties = new ArrayList<>();
-
 }

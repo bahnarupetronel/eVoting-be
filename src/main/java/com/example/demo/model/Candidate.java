@@ -55,7 +55,7 @@ public class Candidate {
 
     @Column(name = "political_party_id")
     @JsonIgnore
-    private Integer politicalPartyId;
+    private Long politicalPartyId;
 
     @Column(name = "competing_in_locality")
     private Integer competingInLocality;

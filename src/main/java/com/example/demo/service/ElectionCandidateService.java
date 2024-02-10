@@ -3,11 +3,12 @@ package com.example.demo.service;
 import com.amazonaws.services.accessanalyzer.model.ResourceNotFoundException;
 import com.amazonaws.services.qldb.model.ResourceAlreadyExistsException;
 import com.example.demo.model.*;
-import com.example.demo.payload.CandidateByEventAndLocalityResponse;
 import com.example.demo.payload.ElectionCompetitorRequest;
 import com.example.demo.payload.RegisteredCandidates;
+import com.example.demo.payload.RegisteredCandidatesResponse;
 import com.example.demo.repository.*;
-import lombok.AllArgsConstructor;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,32 +19,24 @@ import java.util.Optional;
 
 import static com.example.demo.utils.Convert.convertToLong;
 
-@Service@AllArgsConstructor
+@Service@RequiredArgsConstructor
 public class ElectionCandidateService {
     @Autowired
     private ModelMapper modelMapper;
-
-    @Autowired
     private final ElectionCandidateRepository electionCandidateRepository;
-
-    @Autowired
     private final CandidateRepository candidateRepository;
-
-    @Autowired
     private final PoliticalPartyRepository politicalPartyRepository;
-
-    @Autowired
-    private final LocalityRepository localityRepository;
-
-    @Autowired
-    private final ElectionRepository electionRepository;
+    private final LocalityService localityService;
+    private final ElectionService electionService;
+    private final UserService userService;
+    private final CandidateService candidateService;
 
     public void addElectionCompetitor(ElectionCompetitorRequest electionCompetitorRequest){
         modelMapper.getConfiguration().setAmbiguityIgnored(true);
-        Candidate candidate = candidateRepository.findById(electionCompetitorRequest.getCandidateId()).orElse(null);;
-        Election election = electionRepository.findById(electionCompetitorRequest.getElectionId()).orElse(null);;
-        PoliticalParty politicalParty = politicalPartyRepository.findById(Math.toIntExact(electionCompetitorRequest.getPoliticalPartyId())).orElse(null);;
-        Locality locality = localityRepository.findById(Math.toIntExact(electionCompetitorRequest.getCompetingInLocality())).orElse(null);;
+        Candidate candidate = candidateRepository.findById(electionCompetitorRequest.getCandidateId()).orElse(null);
+        Election election = electionService.getElectionById(electionCompetitorRequest.getElectionId());
+        PoliticalParty politicalParty = politicalPartyRepository.findById(Math.toIntExact(electionCompetitorRequest.getPoliticalPartyId())).orElse(null);
+        Locality locality = localityService.getLocalityById(Math.toIntExact(electionCompetitorRequest.getCompetingInLocality()));
         ElectionCandidate electionCandidate = modelMapper.map(electionCompetitorRequest, ElectionCandidate.class);
         if(candidate != null && election != null){
             Optional<ElectionCandidate> existingEntry = electionCandidateRepository.findByCandidateIdAndElectionId(electionCandidate.getCandidateId(), electionCandidate.getElectionId());
@@ -60,7 +53,7 @@ public class ElectionCandidateService {
     public void removeCandidateFromEvent(ElectionCompetitorRequest electionCompetitorRequest) {
         modelMapper.getConfiguration().setAmbiguityIgnored(true);
         Candidate candidate = candidateRepository.findById(electionCompetitorRequest.getCandidateId()).orElse(null);;
-        Election election = electionRepository.findById(electionCompetitorRequest.getElectionId()).orElse(null);;
+        Election election = electionService.getElectionById(electionCompetitorRequest.getElectionId());;
         if(candidate != null && election != null){
             Optional<ElectionCandidate> existingEntry = electionCandidateRepository.findByCandidateIdAndElectionId(electionCompetitorRequest.getCandidateId(), electionCompetitorRequest.getElectionId());
 
@@ -93,6 +86,30 @@ public class ElectionCandidateService {
         return electionCandidateRepository.findAll();
     }
 
+    public Boolean isCandidateRegisterd(Long electionId, Long candidateId, Integer localityId) {
+        return electionCandidateRepository.isCandidateRegistered(electionId, candidateId, localityId);
+    }
+
+    public List<?> getRegisteredCandidates(HttpServletRequest request, String electionId, String candidateTypeId) {
+        Integer candidateType = Integer.parseInt(candidateTypeId);
+        Long electionLong = convertToLong(electionId);
+        User user = userService.getUser(request);
+        Integer localityId = getLocalityIdByElectionType(user, candidateType);
+
+        List<List<Long>> list = electionCandidateRepository.findByElectionIdAndCompetingInLocality(electionLong,  localityId);
+
+        List<RegisteredCandidatesResponse> registeredCandidates = new ArrayList<>();
+        list.forEach(item -> {
+            Candidate candidate = candidateService.getCandidateById(Math.toIntExact(item.get(4)));
+            if(candidate.getCandidateTypeId() == convertToLong(candidateTypeId)){
+                RegisteredCandidatesResponse registeredCandidatesResponse = new RegisteredCandidatesResponse(candidate);
+                registeredCandidates.add(registeredCandidatesResponse);
+            }
+        });
+
+        return registeredCandidates;
+    }
+
     private RegisteredCandidates mapToRegisteredCandidate(ArrayList<?> candidate) {
         return  new RegisteredCandidates().builder()
                 .candidateId((Integer) candidate.get(0))
@@ -101,4 +118,19 @@ public class ElectionCandidateService {
                 .electionCandidateId((Integer) candidate.get(3))
                 .build();
     }
+
+    private Integer getLocalityIdByElectionType(User user, Integer candidateTypeId) {
+        System.out.println(candidateTypeId);
+        if(candidateTypeId == 1 || candidateTypeId == 3) //Primar sau consiliu local
+            return user.getLocalityId();
+        if(candidateTypeId == 2 || candidateTypeId == 8) { //presedinte consiliu judetean sau consiliu judetean
+            Locality locality = localityService.getLocalityById(user.getLocalityId());
+            Locality locality1 = localityService.getByName(locality.getCounty());
+            return Math.toIntExact(locality1.getId());
+        }
+
+        Locality locality = localityService.getByName("Bucuresti");
+        return Math.toIntExact(locality.getId());
+    }
+
 }

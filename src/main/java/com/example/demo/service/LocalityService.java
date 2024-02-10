@@ -55,4 +55,8 @@ public class LocalityService {
     public Locality getLocalityById(Integer id){
         return localityRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(new String("Localitatea cu id-ul " + id + " nu exista!")));
     }
+
+    public Locality getByName(String name){
+        return  localityRepository.findByName(name).orElse(null);
+    }
 }

@@ -70,7 +70,7 @@ public class CandidateService {
         name = name.toLowerCase().replace("-", " ");
         String finalName = name;
         Candidate candidate = candidateRepository.findByName(name).orElseThrow(() -> new ResourceNotFoundException(new String("Candidatul cu numele " + finalName + " nu exista!")));
-        PoliticalParty politicalParty = politicalPartyRepository.findById(candidate.getPoliticalPartyId()).orElse(null);
+        PoliticalParty politicalParty = politicalPartyRepository.findById(Math.toIntExact(candidate.getPoliticalPartyId())).orElse(null);
         return  candidate;
     }
 

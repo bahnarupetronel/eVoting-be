@@ -31,21 +31,21 @@ public class ElectionCandidate {
     @JsonIgnore
     private Long candidateId;
 
-    @ManyToOne(cascade= {CascadeType.PERSIST})
+    @ManyToOne(cascade= {CascadeType.PERSIST}, fetch = FetchType.LAZY)
     @JsonIgnore
     @JoinColumn(name = "election_id")
     private Election election;
 
-    @ManyToOne(cascade= {CascadeType.PERSIST})
+    @ManyToOne(cascade= {CascadeType.PERSIST}, fetch = FetchType.LAZY)
     @JoinColumn(name = "competing_in_locality")
     @JsonIgnore
     private Locality locality;
 
-    @ManyToOne(cascade= {CascadeType.PERSIST})
+    @ManyToOne(cascade= {CascadeType.PERSIST}, fetch = FetchType.LAZY)
     @JoinColumn(name = "political_party_id")
     private PoliticalParty politicalParty;
 
-    @ManyToOne(cascade= {CascadeType.PERSIST})
+    @ManyToOne(cascade= {CascadeType.PERSIST}, fetch = FetchType.LAZY)
     @JoinColumn(name = "candidate_id")
     private Candidate candidate;
 

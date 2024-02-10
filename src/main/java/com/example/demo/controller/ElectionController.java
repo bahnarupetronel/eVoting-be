@@ -1,11 +1,14 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.ElectionDTO;
+import com.example.demo.model.CandidateType;
 import com.example.demo.model.Election;
 import com.example.demo.model.ElectionType;
+import com.example.demo.payload.ElectionAndTypesResponse;
 import com.example.demo.payload.ElectionCompetitorRequest;
 import com.example.demo.payload.ElectionPublish;
 import com.example.demo.service.ElectionService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -43,8 +46,8 @@ public class ElectionController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Election getById( @PathVariable("id") String id) throws NumberFormatException{
-        return electionService.getElectionById(id);
+    public Election getById( HttpServletRequest request, @PathVariable("id") String id) throws NumberFormatException{
+        return electionService.getElectionById(id, request);
     }
 
     @GetMapping("/upcoming")
@@ -75,5 +78,11 @@ public class ElectionController {
     @ResponseStatus(HttpStatus.OK)
     public List<ElectionType> getTypes(){
         return electionService.getTypes();
+    }
+
+    @GetMapping("/election-and-types")
+    @ResponseStatus(HttpStatus.OK)
+    public ElectionAndTypesResponse getTypes(@RequestParam("election") String electionId){
+        return electionService.getElectionAndTypes(electionId);
     }
 }
