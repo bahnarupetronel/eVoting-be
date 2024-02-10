@@ -21,4 +21,6 @@ public class UserEditDTO {
     private String phoneNumber;
     private String postalCode;
     private Integer localityId;
+    private String locality;
+    private String county;
 }

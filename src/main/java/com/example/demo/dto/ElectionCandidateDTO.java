@@ -8,9 +8,10 @@ import lombok.Setter;
 @Getter
 @Setter@AllArgsConstructor@NoArgsConstructor
 public class ElectionCandidateDTO {
-
     private Long electionId;
     private Long candidateId;
     private Long competingIn;
     private Long politicalPartyId;
+    private Integer candidateTypeId;
+    private Long county;
 }

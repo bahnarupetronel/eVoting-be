@@ -11,4 +11,6 @@ public class ElectionCompetitorRequest {
     private Long electionId;
     private Long competingInLocality;
     private Long politicalPartyId;
+    private Integer candidateTypeId;
+    private String county;
 }

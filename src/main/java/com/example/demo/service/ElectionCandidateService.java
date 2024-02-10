@@ -45,6 +45,8 @@ public class ElectionCandidateService {
                 throw( new ResourceAlreadyExistsException(new String("Candidatul " + candidate.getName() + "este deja inregistrat pentru evenimentul" + election.getType().getName())));
             } else {
                 ElectionCandidate electionCandidateDTO = new ElectionCandidate(candidate, election, politicalParty, locality);
+                electionCandidateDTO.setCandidateTypeId( electionCompetitorRequest.getCandidateTypeId());
+                electionCandidateDTO.setCounty( electionCompetitorRequest.getCounty());
                 electionCandidateRepository.save(electionCandidateDTO);
             }
         }
@@ -90,22 +92,48 @@ public class ElectionCandidateService {
         return electionCandidateRepository.isCandidateRegistered(electionId, candidateId, localityId);
     }
 
-    public List<?> getRegisteredCandidates(HttpServletRequest request, String electionId, String candidateTypeId) {
-        Integer candidateType = Integer.parseInt(candidateTypeId);
-        Long electionLong = convertToLong(electionId);
+    public List<?> getRegisteredCandidates(HttpServletRequest request, String election, String candidateTypeId) {
+        Long candidateType = convertToLong(candidateTypeId);
+        Long electionId = convertToLong(election);
         User user = userService.getUser(request);
-        Integer localityId = getLocalityIdByElectionType(user, candidateType);
 
-        List<List<Long>> list = electionCandidateRepository.findByElectionIdAndCompetingInLocality(electionLong,  localityId);
+        Integer userLocality = user.getLocalityId();
+        String userCounty = user.getCounty();
+
+       if(candidateType == 1 || candidateType == 3){
+           return getRegisteredCandidatesForLocalElections(electionId, userLocality, candidateType);
+       }
+       if(candidateType == 2 || candidateType == 8){
+            return getRegisteredCandidatesForCountyElections(electionId, userLocality, userCounty);
+       }
+       else return getRegisteredCandidatesForCountry(electionId, candidateType);
+    }
+
+    private List<?> getRegisteredCandidatesForLocalElections(Long electionId, Integer localityId, Long candidateTypeId) {
+        //id 1 and id 3 //Primar sau consiliu local
+        List<List<Long>> list = electionCandidateRepository.findByElectionIdAndCompetingInLocality(electionId, localityId);
 
         List<RegisteredCandidatesResponse> registeredCandidates = new ArrayList<>();
         list.forEach(item -> {
             Candidate candidate = candidateService.getCandidateById(Math.toIntExact(item.get(4)));
-            if(candidate.getCandidateTypeId() == convertToLong(candidateTypeId)){
+            if(candidate.getCandidateTypeId() == candidateTypeId){
                 RegisteredCandidatesResponse registeredCandidatesResponse = new RegisteredCandidatesResponse(candidate);
                 registeredCandidates.add(registeredCandidatesResponse);
             }
         });
+
+        return registeredCandidates;
+    }
+
+    private List<?> getRegisteredCandidatesForCountyElections(Long electionId, Integer localityId, String county) {
+        //id 2 and id 8 //Consiliu judetean sau Presedinte consiliu judetean
+        List<?> registeredCandidates = electionCandidateRepository.findByElectionIdAndCompetingInLocalityAndCounty(electionId, localityId, county);
+        return registeredCandidates;
+    }
+
+    private List<?> getRegisteredCandidatesForCountry(Long electionId, Long candidateTypeId) {
+        //id 4, 5, 6, 7
+        List<?> registeredCandidates = electionCandidateRepository.findByElectionIdAndCandidateTypeId(electionId, candidateTypeId);
 
         return registeredCandidates;
     }
@@ -119,7 +147,7 @@ public class ElectionCandidateService {
                 .build();
     }
 
-    private Integer getLocalityIdByElectionType(User user, Integer candidateTypeId) {
+    private Integer getLocalityIdByElectionType(User user, Long candidateTypeId) {
         System.out.println(candidateTypeId);
         if(candidateTypeId == 1 || candidateTypeId == 3) //Primar sau consiliu local
             return user.getLocalityId();
