@@ -4,28 +4,32 @@ import com.amazonaws.services.accessanalyzer.model.ResourceNotFoundException;
 import com.amazonaws.services.glue.model.EntityNotFoundException;
 import com.amazonaws.services.qldb.model.ResourceAlreadyExistsException;
 import com.example.demo.model.Locality;
-import com.example.demo.payload.UserEditDTO;
-import com.example.demo.payload.UserRegisterDTO;
+import com.example.demo.payload.*;
 import com.example.demo.exception.UserException;
 import com.example.demo.model.ChangePasswordToken;
 import com.example.demo.model.ConfirmEmailToken;
 import com.example.demo.model.User;
 import com.example.demo.exception.InvalidPasswordException;
-import com.example.demo.payload.ChangePasswordRequest;
-import com.example.demo.payload.EmailRequest;
 import com.example.demo.repository.ChangePasswordTokenRepository;
 import com.example.demo.repository.ConfirmEmailTokenRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.security.jwt.JwtUtils;
+import com.example.demo.security.services.UserDetailsImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseCookie;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service@RequiredArgsConstructor
 public class UserService {
@@ -43,24 +47,10 @@ public class UserService {
     public void register(UserRegisterDTO userRegisterDTO) throws UserException {
         validateUser(userRegisterDTO);
         User user = modelMapper.map(userRegisterDTO, User.class);
-
+        user.setIsEmailConfirmed(false);
+        user.setPassword(passwordEncoder.encode(userRegisterDTO.getPassword()));
+        user.setIsIdentityVerified(false);
         userRepository.save(user);
-    }
-
-    private void validateUser(UserRegisterDTO user) {
-        if (userRepository.existsByEmail(user.getEmail())) {
-            throw new ResourceAlreadyExistsException("An account with this email address already exists. " +
-                    "Please try logging in or use a different email address");
-        }
-
-        if (userRepository.existsByCnp(user.getCnp())) {
-            throw new ResourceAlreadyExistsException("An account with this cnp already exists. " +
-                    "Please try logging in that account or change the password if you forgot it");
-        }
-
-        if (user.getPassword().length() < MIN_PASSWORD_LENGTH) {
-            throw new InvalidPasswordException("Password must have at least " + MIN_PASSWORD_LENGTH + " characters");
-        }
     }
 
     public User getUser(HttpServletRequest request) {
@@ -191,6 +181,23 @@ public class UserService {
         if(token.isEmpty()) return false;
         return true;
     }
+
+    private void validateUser(UserRegisterDTO user) {
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new ResourceAlreadyExistsException("An account with this email address already exists. " +
+                    "Please try logging in or use a different email address");
+        }
+
+        if (userRepository.existsByCnp(user.getCnp())) {
+            throw new ResourceAlreadyExistsException("An account with this cnp already exists. " +
+                    "Please try logging in that account or change the password if you forgot it");
+        }
+
+        if (user.getPassword().length() < MIN_PASSWORD_LENGTH) {
+            throw new InvalidPasswordException("Password must have at least " + MIN_PASSWORD_LENGTH + " characters");
+        }
+    }
+
 
     private SimpleMailMessage createForgotPasswordEmail(String email, String token) {
         SimpleMailMessage mailMessage = new SimpleMailMessage();

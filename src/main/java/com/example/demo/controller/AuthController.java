@@ -60,38 +60,6 @@ public class AuthController {
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void registerUser(@RequestBody UserRegisterDTO userRegister) throws UserException {
-        //refactor
-        // Create new user's account
-//        Set<String> strRoles = userRegister.getRole();
-//        Set<Role> roles = new HashSet<>();
-//
-//        if (strRoles == null) {
-//            Role userRole = roleRepository.findByName(EnumRole.ROLE_USER)
-//                    .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-//            roles.add(userRole);
-//        } else {
-//            strRoles.forEach(role -> {
-//                switch (role) {
-//                    case "admin":
-//                        Role adminRole = roleRepository.findByName(EnumRole.ROLE_ADMIN)
-//                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-//                        roles.add(adminRole);
-//
-//                        break;
-//                    case "mod":
-//                        Role modRole = roleRepository.findByName(EnumRole.ROLE_MODERATOR)
-//                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-//                        roles.add(modRole);
-//
-//                        break;
-//                    default:
-//                        Role userRole = roleRepository.findByName(EnumRole.ROLE_USER)
-//                                .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
-//                        roles.add(userRole);
-//                }
-//            });
-//        }
-
         userService.register(userRegister);
     }
 

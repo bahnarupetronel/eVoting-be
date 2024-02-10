@@ -123,7 +123,7 @@ public class ApplicationExceptionHandler {
     @ExceptionHandler(BadCredentialsException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<Object> handleBadCredentialsException(
-            StripeException exception,
+            BadCredentialsException exception,
             WebRequest request
     ){
         exception.printStackTrace();

@@ -30,6 +30,15 @@ public class User implements UserDetails {
     @Column(name = "email", length = 50, unique = true)
     private String email;
 
+    @Column(name = "county", length = 100)
+    private String county;
+
+    @Column(name = "locality", length = 100)
+    private String locality;
+
+    @Column(name = "locality_id")
+    private Integer localityId;
+
     @JsonIgnore
     @Column(name = "password", length = 100)
     private String password;
@@ -63,9 +72,6 @@ public class User implements UserDetails {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
-
-    @Column(name = "locality_id")
-    private Integer localityId;
 
     @Override
     @JsonIgnore
