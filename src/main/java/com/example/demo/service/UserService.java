@@ -108,6 +108,7 @@ public class UserService {
         newUser.setStripeSession(null);
         newUser.setChangePasswordToken(null);
         newUser.setPassword(userById.getPassword());
+        newUser.setRoles(userById.getRoles());
         userRepository.save(newUser);
     }
 

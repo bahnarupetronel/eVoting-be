@@ -16,4 +16,5 @@ public class ElectionDTO {
     private Long typeId;
     private boolean published;
     private String lawText;
+    private String proposedLawText;
 }
