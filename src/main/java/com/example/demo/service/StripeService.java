@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import com.amazonaws.services.glue.model.EntityNotFoundException;
 
+import javax.naming.InvalidNameException;
+
 @Service
 public class StripeService {
     @Autowired
@@ -26,17 +28,18 @@ public class StripeService {
     @Autowired
     private UserRepository userRepository;
 
-    public String createVerificationSession(HttpServletRequest request) throws StripeException {
+    public String createVerificationSession(HttpServletRequest request) throws StripeException, InvalidNameException {
         Stripe.apiKey = stripeConfig.getSecretKey();
         User user = userService.getUser(request);
 
         VerificationSession verificationSession = getStripeVerificationSession(user);
-
+        System.out.println("hello1");
         if(verificationSession != null){
+            System.out.println("hello, session exists");
             isDocumentMatching(verificationSession, user);
             return verificationSession.toJson();
         }
-
+        System.out.println("hello,  session doesnt exists");
         VerificationSessionCreateParams params = createSessionParams();
 
         verificationSession =  VerificationSession.create(params);
@@ -45,7 +48,7 @@ public class StripeService {
         return verificationSession.toJson();
     }
 
-    public String getVerificationSession(HttpServletRequest request) throws StripeException {
+    public String getVerificationSession(HttpServletRequest request) throws StripeException, InvalidNameException {
         Stripe.apiKey = stripeConfig.getSecretKey();
         User user = userService.getUser(request);
         VerificationSession verificationSession = getStripeVerificationSession(user);
@@ -81,7 +84,7 @@ public class StripeService {
         return null;
     }
 
-    private void isDocumentMatching(VerificationSession verificationSession, User user) {
+    private void isDocumentMatching(VerificationSession verificationSession, User user) throws InvalidNameException {
         if(verificationSession.getStatus().equals("verified")){
             String firstName = verificationSession.getVerifiedOutputs().getFirstName().toLowerCase();
             String lastName = verificationSession.getVerifiedOutputs().getLastName().toLowerCase();
@@ -96,7 +99,9 @@ public class StripeService {
                 stripeSessionRepository.deleteById(stripeSession.getSessionId());
             }
             else {
-                throw new EntityNotFoundException(new String("Datele de pe document nu corespund cu datele userului."));
+                StripeSession stripeSession = stripeSessionRepository.findByUser(user);
+                stripeSessionRepository.deleteById(stripeSession.getSessionId());
+                throw new InvalidNameException("Datele personale din cont nu se potrivesc cu cele datele de pe cartea de identitate.");
             }
         }
     }

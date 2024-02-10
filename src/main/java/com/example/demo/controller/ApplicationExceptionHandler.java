@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
+import javax.naming.InvalidNameException;
+
 @RestControllerAdvice
 public class ApplicationExceptionHandler {
 
@@ -133,7 +135,7 @@ public class ApplicationExceptionHandler {
     }
 
     @ExceptionHandler(PreconditionFailedException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.PRECONDITION_FAILED)
     public ResponseEntity<Object> handlePreconditionFailedException(
             PreconditionFailedException exception,
             WebRequest request
@@ -144,4 +146,15 @@ public class ApplicationExceptionHandler {
                 .body("Contul nu este verificat");
     }
 
+    @ExceptionHandler(InvalidNameException.class)
+    @ResponseStatus(HttpStatus.PRECONDITION_FAILED)
+    public ResponseEntity<Object> handleInvalidNameException(
+            InvalidNameException exception,
+            WebRequest request
+    ){
+        exception.printStackTrace();
+        return ResponseEntity
+                .status(HttpStatus.PRECONDITION_FAILED)
+                .body("Datele personale nu se potrivesc cu cele de pe cartea de identitate. Actualizati datele si incercati din nou.");
+    }
 }

@@ -27,9 +27,15 @@ public class ElectionCandidate {
     @JsonIgnore
     private Long politicalPartyId;
 
+    @Column(name = "county")
+    private String county;
+
     @Column(name = "candidate_id",insertable = false, updatable = false)
     @JsonIgnore
     private Long candidateId;
+
+    @Column(name = "candidate_type_id")
+    private Integer candidateTypeId;
 
     @ManyToOne(cascade= {CascadeType.PERSIST}, fetch = FetchType.LAZY)
     @JsonIgnore
