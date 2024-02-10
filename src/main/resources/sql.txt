@@ -574,3 +574,50 @@ DROP COLUMN old_column;
 ALTER TABLE user_details
 ADD COLUMN first_name VARCHAR(255),
 ADD COLUMN last_name VARCHAR(255);
+
+drop table vote;
+
+CREATE TABLE IF NOT EXISTS vote (
+    vote_id SERIAL PRIMARY KEY,
+    election_id INT NOT NULL,
+    candidate_type_id INT NOT NULL,
+    candidate_id INT NOT NULL,
+    CONSTRAINT fk_election FOREIGN KEY (election_id) REFERENCES election(election_id),
+    CONSTRAINT fk_event_type FOREIGN KEY (candidate_type_id) REFERENCES candidate_type(id),
+    CONSTRAINT fk_competitor FOREIGN KEY (candidate_id) REFERENCES candidates(id)
+);
+
+CREATE TABLE IF NOT EXISTS has_user_voted (
+    user_vote_id SERIAL PRIMARY KEY,
+    user_id INT NOT NULL,
+    election_id INT NOT NULL,
+    candidate_type_id INT NOT NULL,
+    CONSTRAINT fk_user FOREIGN KEY (user_id) REFERENCES user_details(id),
+    CONSTRAINT fk_election FOREIGN KEY (election_id) REFERENCES election(election_id),
+    CONSTRAINT fk_event_type FOREIGN KEY (candidate_type_id) REFERENCES candidate_type(id)
+);
+
+INSERT INTO roles (id, name) VALUES (1, 'user');
+INSERT INTO roles (id, name) VALUES (2, 'admin');
+
+INSERT INTO user_roles (user_id, role_id) VALUES (2, 2);
+
+ALTER TABLE election
+ADD COLUMN law_text VARCHAR(255) NULL;
+
+CREATE TABLE referendum_options (
+    option_id SERIAL PRIMARY KEY,
+    option_name VARCHAR(20) NOT NULL
+);
+INSERT INTO referendum_options (option_name) VALUES
+('Da'),
+('Nu'),
+('Ma abtin');
+
+CREATE TABLE vote_referendum (
+    vote_id SERIAL PRIMARY KEY,
+    election_id INT,
+    option_id INT,
+    FOREIGN KEY (election_id) REFERENCES election(election_id),
+    FOREIGN KEY (option_id) REFERENCES referendum_options(option_id)
+);

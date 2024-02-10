@@ -1,33 +1,37 @@
 package com.example.demo.service;
 
 import com.amazonaws.services.accessanalyzer.model.ResourceNotFoundException;
+import com.amazonaws.services.glue.model.EntityNotFoundException;
 import com.amazonaws.services.qldb.model.ResourceAlreadyExistsException;
 import com.example.demo.dto.ElectionDTO;
-import com.example.demo.model.Election;
-import com.example.demo.model.ElectionType;
+import com.example.demo.enums.EnumRole;
+import com.example.demo.model.*;
+import com.example.demo.payload.ElectionAndTypesResponse;
 import com.example.demo.payload.ElectionPublish;
 import com.example.demo.repository.ElectionRepository;
 import com.example.demo.repository.ElectionTypesRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
+
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 import static com.example.demo.utils.Convert.convertToLong;
 
-@Service
+@Service@RequiredArgsConstructor
 public class ElectionService {
     @Autowired
     private ModelMapper modelMapper;
     private final ElectionRepository electionRepository;
-    private final ElectionTypesRepository electionTypesRepository;
+   private final ElectionTypeService electionTypeService;
+    private final CandidateTypeService candidateTypeService;
+    private final UserService userService;
 
-    public ElectionService(ElectionRepository electionRepository, ElectionTypesRepository electionTypesRepository){
-        this.electionRepository = electionRepository;
-        this.electionTypesRepository = electionTypesRepository;
-    }
     public void addElection(ElectionDTO electionDTO){
         Election election = modelMapper.map(electionDTO, Election.class);
         if(electionRepository.existsBy( Math.toIntExact(election.getTypeId()), election.getStartDate(), election.getEndDate())){
@@ -63,9 +67,17 @@ public class ElectionService {
         return electionRepository.findFinishedElections(getLocalDateTime());
     }
 
-    public Election getElectionById(String id) {
+    public Election getElectionById(String id, HttpServletRequest request) {
+        User user = userService.getUser(request);
+        Set<Role> roles =  user.getRoles();
+        boolean isAdmin = roles.stream()
+                .anyMatch(role -> role.getName() == EnumRole.admin);
         Long electionId = convertToLong(id);
-        return getElectionById(electionId);
+       Election election = getElectionById(electionId);
+       if(!election.isPublished() &&  !isAdmin) {
+           throw new EntityNotFoundException(("Resursa nu exista."));
+       }
+       return election;
     }
 
     public Election getElectionById(Long id) {
@@ -79,8 +91,18 @@ public class ElectionService {
         else  throw new IllegalStateException(new String("You can't remove this event! It is published."));
     }
 
+    public ElectionAndTypesResponse getElectionAndTypes (String id){
+        Long electionId = convertToLong(id);
+        Election election = getElectionById(electionId);
+        ElectionAndTypesResponse electionAndTypesResponse = new ElectionAndTypesResponse();
+        electionAndTypesResponse.setElection(election);
+        List < CandidateType> candidateTypes = candidateTypeService.getTypesByElectionType(String.valueOf(election.getTypeId()));
+        electionAndTypesResponse.setCandidateTypes(candidateTypes);
+        return electionAndTypesResponse;
+    }
+
     public List<ElectionType> getTypes() {
-        return electionTypesRepository.findAll();
+        return electionTypeService.getTypes();
     }
 
     private LocalDateTime getLocalDateTime() {

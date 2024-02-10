@@ -1,12 +1,11 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.VoteDTO;
 import com.example.demo.service.VoteService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.web3j.protocol.core.Request;
-import org.web3j.protocol.core.methods.response.EthGetBalance;
-
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController@AllArgsConstructor
@@ -14,11 +13,9 @@ import org.web3j.protocol.core.methods.response.EthGetBalance;
 public class VoteController {
     private final VoteService voteService;
 
-    @GetMapping("")
+    @PostMapping("")
     @ResponseStatus(HttpStatus.OK)
-    public Request<?, EthGetBalance> getTypes(){
-
-        Request<?, EthGetBalance> text = voteService.tryEth();
-        return text;
+    public void  registerVote(HttpServletRequest request, @RequestBody VoteDTO voteDTO){
+        voteService.registerVote(request, voteDTO);
     }
 }

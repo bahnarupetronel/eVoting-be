@@ -24,5 +24,11 @@ public interface ElectionCandidateRepository extends JpaRepository<ElectionCandi
     @Query(value = "SELECT e FROM election_candidates e where e.election_id = ?1", nativeQuery = true)
     List<ElectionCandidate>  findByElectionId(@Param("electionId") Long electionId);
 
+    @Query(value = "SELECT * FROM election_candidates e where e.election_id = ?1 and e.competing_in_locality = ?2", nativeQuery = true)
+    List<List<Long>>  findByElectionIdAndCompetingInLocality(@Param("electionId") Long electionId, @Param("competingInLocality") Integer competingInLocality);
+
     Boolean existsByElectionId(@Param("electionId") Long electionId);
+
+    @Query(value = "SELECT EXISTS(SELECT e FROM election_candidates e where e.election_id = ?1 and e.candidate_id = ?2 and e.competing_in_locality = ?3)", nativeQuery = true)
+    Boolean isCandidateRegistered(Long electionId, Long candidateId, Integer localityId);
 }

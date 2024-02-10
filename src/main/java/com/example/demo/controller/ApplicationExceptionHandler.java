@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.amazonaws.services.accessanalyzer.model.ResourceNotFoundException;
+import com.amazonaws.services.cloudfront.model.PreconditionFailedException;
 import com.amazonaws.services.fsx.model.BadRequestException;
 import com.amazonaws.services.glue.model.EntityNotFoundException;
 import com.amazonaws.services.qldb.model.ResourceAlreadyExistsException;
@@ -129,6 +130,18 @@ public class ApplicationExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body("Incorrect password or email!");
+    }
+
+    @ExceptionHandler(PreconditionFailedException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<Object> handlePreconditionFailedException(
+            PreconditionFailedException exception,
+            WebRequest request
+    ){
+        exception.printStackTrace();
+        return ResponseEntity
+                .status(HttpStatus.PRECONDITION_FAILED)
+                .body("Contul nu este verificat");
     }
 
 }

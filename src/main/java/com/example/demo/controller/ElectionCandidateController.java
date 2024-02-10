@@ -4,6 +4,7 @@ import com.example.demo.model.ElectionCandidate;
 import com.example.demo.payload.ElectionCompetitorRequest;
 import com.example.demo.payload.RegisteredCandidates;
 import com.example.demo.service.ElectionCandidateService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -45,4 +46,11 @@ public class ElectionCandidateController {
     public void deleteCandidateFromEvent(@RequestBody ElectionCompetitorRequest electionCompetitorRequest){
         electionCandidateService.removeCandidateFromEvent(electionCompetitorRequest);
     }
+
+    @GetMapping("/registered")
+    @ResponseStatus(HttpStatus.OK)
+    public List<?> getRegisteredCandidates(HttpServletRequest request, @RequestParam("electionId") String electionId, @RequestParam("candidateTypeId") String candidateTypeId){
+        return electionCandidateService.getRegisteredCandidates(request, electionId, candidateTypeId);
+    }
+
 }

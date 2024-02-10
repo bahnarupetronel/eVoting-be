@@ -50,4 +50,8 @@ public class CountyService {
         return countyRepository.findById(Long.valueOf(id)).orElseThrow(() -> new ResourceNotFoundException(new String("Localitatea cu id-ul " + id + " nu exista!")));
     }
 
+    public County getCountyByName (String county) {
+        return countyRepository.findByName(county).orElse(null);
+    }
+
 }

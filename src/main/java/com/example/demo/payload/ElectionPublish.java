@@ -1,10 +1,10 @@
 package com.example.demo.payload;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
-@Getter@Setter@AllArgsConstructor
+@Getter@Setter@RequiredArgsConstructor
 public class ElectionPublish {
     private Long electionId;
 }

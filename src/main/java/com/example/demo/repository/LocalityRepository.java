@@ -18,4 +18,6 @@ public interface LocalityRepository extends JpaRepository<Locality, Integer> {
 
     @Query(value = "SELECT id, name, county, population, zip, lat, lng, auto, diacritics FROM localities WHERE id = ?1", nativeQuery = true)
     Optional<Locality> findById(@Param("localityId") Integer localityId);
+
+    Optional<Locality> findByName(String name);
 }

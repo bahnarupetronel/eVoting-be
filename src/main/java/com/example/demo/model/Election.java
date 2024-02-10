@@ -22,6 +22,9 @@ public class Election {
     @Column( nullable = false)
     private String description;
 
+    @Column(name = "law_text", nullable = true)
+    private String lawText;
+
     @Column(nullable = false)
     private LocalDateTime startDate;
 

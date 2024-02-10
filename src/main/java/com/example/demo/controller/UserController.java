@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.model.Locality;
 import com.example.demo.payload.UserEditDTO;
 import com.example.demo.model.User;
 import com.example.demo.payload.ChangePasswordRequest;
@@ -69,4 +70,15 @@ public class UserController {
         return userService.isEmailSent(request);
     }
 
+    @GetMapping("/allowed-to-vote")
+    @ResponseStatus(HttpStatus.OK)
+    public Boolean isUserAllowedToVote(HttpServletRequest request){
+        return userService.isUserAllowedToVote(request);
+    }
+
+    @GetMapping("/address")
+    @ResponseStatus(HttpStatus.OK)
+    public Locality getUsersAdress(HttpServletRequest request){
+        return userService.getAddress(request);
+    }
 }
