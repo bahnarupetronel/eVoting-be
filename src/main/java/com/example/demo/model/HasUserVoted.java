@@ -1,5 +1,6 @@
 package com.example.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import jakarta.persistence.*;
@@ -8,7 +9,6 @@ import jakarta.persistence.*;
 @Entity
 @Table(name = "has_user_voted")
 public class HasUserVoted {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_vote_id")
@@ -22,5 +22,4 @@ public class HasUserVoted {
 
     @Column(name = "candidate_type_id", nullable = false)
     private Long candidateTypeId;
-
 }

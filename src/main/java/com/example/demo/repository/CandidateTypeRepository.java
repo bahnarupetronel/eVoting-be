@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface CandidateTypeRepository extends JpaRepository<CandidateType, Long> {
     List<CandidateType> findByElectionTypeId(Integer electionTypeId);
+
+    CandidateType findById(Integer candidateTypeId);
 }
