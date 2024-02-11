@@ -24,14 +24,14 @@ public interface ElectionCandidateRepository extends JpaRepository<ElectionCandi
     @Query(value = "SELECT e FROM election_candidates e where e.election_id = ?1", nativeQuery = true)
     List<ElectionCandidate>  findByElectionId(@Param("electionId") Long electionId);
 
-    @Query(value = "SELECT * FROM election_candidates e where e.election_id = ?1 and e.competing_in_locality = ?2", nativeQuery = true)
-    List<List<Long>>  findByElectionIdAndCompetingInLocality(@Param("electionId") Long electionId, @Param("competingInLocality") Integer competingInLocality);
+    @Query(value = "SELECT e.candidate_id FROM election_candidates e where e.election_id = ?1 and e.competing_in_locality = ?2 and e.candidate_type_id=?3", nativeQuery = true)
+    List<Long>  findByElectionIdAndCompetingInLocality(@Param("electionId") Long electionId, @Param("competingInLocality") Integer competingInLocality, @Param("candidateTypeId") Integer candidateTypeId);
 
-    @Query(value = "SELECT * FROM election_candidates e where e.election_id = ?1 and e.competing_in_locality = ?2 and e.county = ?3", nativeQuery = true)
-    List<?>  findByElectionIdAndCompetingInLocalityAndCounty(@Param("electionId") Long electionId, @Param("competingInLocality") Integer competingInLocality, @Param("county") String county);
+    @Query(value = "SELECT e.candidate_id FROM election_candidates e where e.election_id = ?1 and e.candidate_type_id=?2 and e.county = ?3", nativeQuery = true)
+    List<Long>  findByElectionIdAndCompetingInCounty(@Param("electionId") Long electionId, @Param("candidateTypeId") Integer candidateTypeId, @Param("county") String county);
 
-    @Query(value = "SELECT * FROM election_candidates e where e.election_id = ?1 and e.candidate_type_id = ?2", nativeQuery = true)
-    List<?>  findByElectionIdAndCandidateTypeId(@Param("electionId") Long electionId, @Param("candidateTypeId") Long candidateTypeId);
+    @Query(value = "SELECT e.candidate_id FROM election_candidates e where e.election_id = ?1 and e.candidate_type_id = ?2", nativeQuery = true)
+    List<Long>  findByElectionIdAndCandidateTypeId(@Param("electionId") Long electionId, @Param("candidateTypeId") Long candidateTypeId);
 
 
     Boolean existsByElectionId(@Param("electionId") Long electionId);

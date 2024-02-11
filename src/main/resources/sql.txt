@@ -641,3 +641,54 @@ ADD CONSTRAINT election_competitors_election_id_fkey
 FOREIGN KEY (election_id)
 REFERENCES election(election_id)
 ON DELETE CASCADE;
+
+ALTER TABLE counties
+ADD COLUMN residence VARCHAR(255);
+
+UPDATE counties
+SET residence =
+    CASE
+        WHEN name = 'Alba' THEN 'Alba Iulia'
+        WHEN name = 'Arad' THEN 'Arad'
+        WHEN name = 'Arges' THEN 'Pitesti'
+        WHEN name = 'Bacau' THEN 'Bacau'
+        WHEN name = 'Bihor' THEN 'Oradea'
+        WHEN name = 'Bistrita-Nasaud' THEN 'Bistrita'
+        WHEN name = 'Botosani' THEN 'Botosani'
+        WHEN name = 'Brasov' THEN 'Brasov'
+        WHEN name = 'Braila' THEN 'Braila'
+        WHEN name = 'Buzau' THEN 'Buzau'
+        WHEN name = 'Caras-Severin' THEN 'Resita'
+        WHEN name = 'Calarasi' THEN 'Calarasi'
+        WHEN name = 'Cluj' THEN 'Cluj-Napoca'
+        WHEN name = 'Constanta' THEN 'Constanta'
+        WHEN name = 'Covasna' THEN 'Sfantu Gheorghe'
+        WHEN name = 'Dambovita' THEN 'Targoviste'
+        WHEN name = 'Dolj' THEN 'Craiova'
+        WHEN name = 'Galati' THEN 'Galati'
+        WHEN name = 'Giurgiu' THEN 'Giurgiu'
+        WHEN name = 'Gorj' THEN 'Targu Jiu'
+        WHEN name = 'Harghita' THEN 'Miercurea Ciuc'
+        WHEN name = 'Hunedoara' THEN 'Deva'
+        WHEN name = 'Ialomita' THEN 'Slobozia'
+        WHEN name = 'Iasi' THEN 'Iasi'
+        WHEN name = 'Ilfov' THEN 'Bucuresti'
+        WHEN name = 'Maramures' THEN 'Baia Mare'
+        WHEN name = 'Mehedinti' THEN 'Drobeta-Turnu Severin'
+        WHEN name = 'Mures' THEN 'Targu Mures'
+        WHEN name = 'Neamt' THEN 'Piatra Neamt'
+        WHEN name = 'Olt' THEN 'Slatina'
+        WHEN name = 'Prahova' THEN 'Ploiesti'
+        WHEN name = 'Satu Mare' THEN 'Satu Mare'
+        WHEN name = 'Salaj' THEN 'Zalau'
+        WHEN name = 'Sibiu' THEN 'Sibiu'
+        WHEN name = 'Suceava' THEN 'Suceava'
+        WHEN name = 'Teleorman' THEN 'Alexandria'
+        WHEN name = 'Timis' THEN 'Timisoara'
+        WHEN name = 'Tulcea' THEN 'Tulcea'
+        WHEN name = 'Vaslui' THEN 'Vasului'
+        WHEN name = 'Valcea' THEN 'Ramnicu Valcea'
+        WHEN name = 'Vrancea' THEN 'Focsani'
+    END;
+UPDATE counties
+SET residence = "Bucuresti" where name = "Bucuresti";

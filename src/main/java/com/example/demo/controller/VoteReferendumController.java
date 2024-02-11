@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/referendum-vote")@AllArgsConstructor
@@ -16,7 +18,13 @@ public class VoteReferendumController {
 
     @PostMapping("")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void getOptions(HttpServletRequest request, @RequestBody VoteReferendumRequest voteReferendumRequest){
+    public void castReferendumVote(HttpServletRequest request, @RequestBody VoteReferendumRequest voteReferendumRequest){
         voteReferendumService.castVote(request, voteReferendumRequest);
+    }
+
+    @GetMapping("")
+    @ResponseStatus(HttpStatus.OK)
+    public List<?> getNumberOfVotes(@RequestParam("electionId") Long electionId){
+        return voteReferendumService.getNumberOfVotes(electionId);
     }
 }

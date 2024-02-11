@@ -92,7 +92,7 @@ public class ElectionCandidateService {
         return electionCandidateRepository.isCandidateRegistered(electionId, candidateId, localityId);
     }
 
-    public List<?> getRegisteredCandidates(HttpServletRequest request, String election, String candidateTypeId) {
+    public List<RegisteredCandidatesResponse> getRegisteredCandidates(HttpServletRequest request, String election, String candidateTypeId) {
         Long candidateType = convertToLong(candidateTypeId);
         Long electionId = convertToLong(election);
         User user = userService.getUser(request);
@@ -104,36 +104,49 @@ public class ElectionCandidateService {
            return getRegisteredCandidatesForLocalElections(electionId, userLocality, candidateType);
        }
        if(candidateType == 2 || candidateType == 8){
-            return getRegisteredCandidatesForCountyElections(electionId, userLocality, userCounty);
+            return getRegisteredCandidatesForCountyElections(electionId, candidateType, userCounty);
        }
        else return getRegisteredCandidatesForCountry(electionId, candidateType);
     }
 
-    private List<?> getRegisteredCandidatesForLocalElections(Long electionId, Integer localityId, Long candidateTypeId) {
+    private List<RegisteredCandidatesResponse> getRegisteredCandidatesForLocalElections(Long electionId, Integer localityId, Long candidateTypeId) {
         //id 1 and id 3 //Primar sau consiliu local
-        List<List<Long>> list = electionCandidateRepository.findByElectionIdAndCompetingInLocality(electionId, localityId);
+        List<Long> list = electionCandidateRepository.findByElectionIdAndCompetingInLocality(electionId, localityId, Math.toIntExact(candidateTypeId));
 
         List<RegisteredCandidatesResponse> registeredCandidates = new ArrayList<>();
         list.forEach(item -> {
-            Candidate candidate = candidateService.getCandidateById(Math.toIntExact(item.get(4)));
-            if(candidate.getCandidateTypeId() == candidateTypeId){
-                RegisteredCandidatesResponse registeredCandidatesResponse = new RegisteredCandidatesResponse(candidate);
-                registeredCandidates.add(registeredCandidatesResponse);
-            }
+            Candidate candidate = candidateService.getCandidateById(Math.toIntExact(item));
+            RegisteredCandidatesResponse registeredCandidatesResponse = new RegisteredCandidatesResponse(candidate);
+            registeredCandidates.add(registeredCandidatesResponse);
         });
 
         return registeredCandidates;
     }
 
-    private List<?> getRegisteredCandidatesForCountyElections(Long electionId, Integer localityId, String county) {
+    private List<RegisteredCandidatesResponse> getRegisteredCandidatesForCountyElections(Long electionId, Long candidateTypeId, String county) {
         //id 2 and id 8 //Consiliu judetean sau Presedinte consiliu judetean
-        List<?> registeredCandidates = electionCandidateRepository.findByElectionIdAndCompetingInLocalityAndCounty(electionId, localityId, county);
+        System.out.println(county);
+        List<Long> list = electionCandidateRepository.findByElectionIdAndCompetingInCounty(electionId, Math.toIntExact(candidateTypeId), county);
+        List<RegisteredCandidatesResponse> registeredCandidates = new ArrayList<>();
+        list.forEach(item -> {
+            Candidate candidate = candidateService.getCandidateById(Math.toIntExact(item));
+            RegisteredCandidatesResponse registeredCandidatesResponse = new RegisteredCandidatesResponse(candidate);
+            registeredCandidates.add(registeredCandidatesResponse);
+        });
+
         return registeredCandidates;
     }
 
-    private List<?> getRegisteredCandidatesForCountry(Long electionId, Long candidateTypeId) {
+    private List<RegisteredCandidatesResponse> getRegisteredCandidatesForCountry(Long electionId, Long candidateTypeId) {
         //id 4, 5, 6, 7
-        List<?> registeredCandidates = electionCandidateRepository.findByElectionIdAndCandidateTypeId(electionId, candidateTypeId);
+        List<Long> list = electionCandidateRepository.findByElectionIdAndCandidateTypeId(electionId, candidateTypeId);
+
+        List<RegisteredCandidatesResponse> registeredCandidates = new ArrayList<>();
+        list.forEach(item -> {
+            Candidate candidate = candidateService.getCandidateById(Math.toIntExact(item));
+            RegisteredCandidatesResponse registeredCandidatesResponse = new RegisteredCandidatesResponse(candidate);
+            registeredCandidates.add(registeredCandidatesResponse);
+        });
 
         return registeredCandidates;
     }
