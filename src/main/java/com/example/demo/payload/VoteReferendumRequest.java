@@ -11,6 +11,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class VoteReferendumRequest {
         private Long electionId;
-        private Long typeId;
+        private Long candidateTypeId;
         private Long optionId;
 }

@@ -21,4 +21,7 @@ public class County {
 
     @Column(name = "name", length = 100)
     private String name;
+
+    @Column(name = "residence", length = 100)
+    private String residence;
 }

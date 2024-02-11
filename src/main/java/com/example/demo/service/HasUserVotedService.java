@@ -7,6 +7,7 @@ import com.example.demo.model.CandidateType;
 import com.example.demo.model.Election;
 import com.example.demo.model.HasUserVoted;
 import com.example.demo.model.User;
+import com.example.demo.payload.VoteReferendumRequest;
 import com.example.demo.payload.VotesResponse;
 import com.example.demo.repository.HasUserVotedRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -76,6 +77,14 @@ public class HasUserVotedService {
         hasUserVoted.setUserId(user.getId());
         hasUserVoted.setElectionId(voteDTO.getElectionId());
         hasUserVoted.setCandidateTypeId(voteDTO.getCandidateTypeId());
+        return hasUserVotedRepository.save(hasUserVoted);
+    }
+
+    public HasUserVoted registerReferendumVote (User user, VoteReferendumRequest voteReferendumRequest){
+        HasUserVoted hasUserVoted = new HasUserVoted();
+        hasUserVoted.setUserId(user.getId());
+        hasUserVoted.setElectionId(voteReferendumRequest.getElectionId());
+        hasUserVoted.setCandidateTypeId(voteReferendumRequest.getCandidateTypeId());
         return hasUserVotedRepository.save(hasUserVoted);
     }
 

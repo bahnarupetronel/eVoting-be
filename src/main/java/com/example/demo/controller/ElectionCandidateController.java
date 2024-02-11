@@ -3,6 +3,7 @@ package com.example.demo.controller;
 import com.example.demo.model.ElectionCandidate;
 import com.example.demo.payload.ElectionCompetitorRequest;
 import com.example.demo.payload.RegisteredCandidates;
+import com.example.demo.payload.RegisteredCandidatesResponse;
 import com.example.demo.service.ElectionCandidateService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +50,7 @@ public class ElectionCandidateController {
 
     @GetMapping("/registered")
     @ResponseStatus(HttpStatus.OK)
-    public List<?> getRegisteredCandidates(HttpServletRequest request, @RequestParam("electionId") String electionId, @RequestParam("candidateTypeId") String candidateTypeId){
+    public List<RegisteredCandidatesResponse> getRegisteredCandidates(HttpServletRequest request, @RequestParam("electionId") String electionId, @RequestParam("candidateTypeId") String candidateTypeId){
         return electionCandidateService.getRegisteredCandidates(request, electionId, candidateTypeId);
     }
 

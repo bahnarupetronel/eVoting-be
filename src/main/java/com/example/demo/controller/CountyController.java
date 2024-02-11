@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/counties")
@@ -35,4 +36,9 @@ public class CountyController {
         return countyService.getCountyById(id);
     }
 
+
+    @GetMapping("/map")
+    public List<?> getCountiesForMap() {
+        return countyService.getCountiesForMap();
+    }
 }

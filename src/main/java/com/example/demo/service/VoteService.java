@@ -5,14 +5,21 @@ import com.amazonaws.services.fsx.model.BadRequestException;
 import com.amazonaws.services.qldb.model.ResourceAlreadyExistsException;
 import com.example.demo.dto.VoteDTO;
 import com.example.demo.model.*;
+import com.example.demo.payload.NumberOfVotesRequest;
 import com.example.demo.repository.VoteRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 @Service@RequiredArgsConstructor
@@ -25,6 +32,7 @@ public class VoteService {
     private final ElectionService electionService;
     private final CandidateService candidateService;
     private final ElectionCandidateService electionCandidateService;
+    private final LocalityService localityService;
 
     public void registerVote(HttpServletRequest request, VoteDTO voteDTO){
         User user = userService.getUser(request);
@@ -61,6 +69,29 @@ public class VoteService {
         vote.setCandidateId(voteDTO.getCandidateId());
         voteRepository.save(vote);
         hasUserVotedService.registerUserVote(user, voteDTO);
+    }
+
+    public List<?> getNumberOfVotes(Long electionId, Integer candidateTypeId, Long localityId){
+        if(candidateTypeId == 1 || candidateTypeId == 3){
+            return getResultsByLocality(electionId, candidateTypeId, localityId);
+        }
+        if(candidateTypeId == 2 || candidateTypeId == 8){
+            return getResultsByCounty(electionId, candidateTypeId, localityId);
+        }
+        else return getResultsByCountry(electionId, candidateTypeId);
+    }
+
+    private List<?> getResultsByLocality (Long electionId, Integer candidateTypeId, Long localityId){
+        return  voteRepository.countVotesPerCandidateAndLocality(electionId, candidateTypeId, localityId);
+    }
+
+    private List<?> getResultsByCounty (Long electionId, Integer candidateTypeId, Long localityId){
+        Locality locality = localityService.getLocalityById(Math.toIntExact(localityId));
+        return  voteRepository.countVotesPerCandidateAndCounty(electionId, candidateTypeId, locality.getCounty());
+    }
+
+    private List<?> getResultsByCountry (Long electionId, Integer candidateTypeId){
+        return  voteRepository.countVotesPerCandidateCountry(electionId, candidateTypeId);
     }
 
     private Boolean isElectionLive (Election election){

@@ -15,6 +15,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service@RequiredArgsConstructor
@@ -48,6 +49,10 @@ public class CountyService {
 
     public County getCountyById (Integer id) {
         return countyRepository.findById(Long.valueOf(id)).orElseThrow(() -> new ResourceNotFoundException(new String("Localitatea cu id-ul " + id + " nu exista!")));
+    }
+
+    public List<?> getCountiesForMap(){
+        return countyRepository.findCountiesForMap();
     }
 
     public County getCountyByName (String county) {

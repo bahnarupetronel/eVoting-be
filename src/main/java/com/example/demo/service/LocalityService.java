@@ -52,6 +52,11 @@ public class LocalityService {
        return localityRepository.findAllLocalities();
     }
 
+
+    public List<Map<String, Object>> getLocalitiesForMap(){
+        return localityRepository.findLocalitiesForMap();
+    }
+
     public Locality getLocalityById(Integer id){
         return localityRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(new String("Localitatea cu id-ul " + id + " nu exista!")));
     }

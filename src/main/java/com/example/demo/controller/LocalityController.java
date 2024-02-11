@@ -30,6 +30,11 @@ public class LocalityController {
         return localityService.getLocalities();
     }
 
+    @GetMapping("/map")
+    public List<?> getLocalitiesForMap() {
+        return localityService.getLocalitiesForMap();
+    }
+
     @GetMapping("/{id}")
     public Locality getById(@PathVariable Integer id) {
         return localityService.getLocalityById(id);
