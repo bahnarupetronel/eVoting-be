@@ -21,4 +21,8 @@ public class CandidateTypeService {
         Long electionTypeId = convertToLong(id);
         return candidateTypeRepository.findByElectionTypeId(Math.toIntExact(electionTypeId));
     }
+
+    public CandidateType findById(Integer id){
+        return candidateTypeRepository.findById(id);
+    }
 }

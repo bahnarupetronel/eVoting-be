@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 @Getter@Setter@RequiredArgsConstructor
 @Entity
@@ -40,6 +42,7 @@ public class ElectionCandidate {
     @ManyToOne(cascade= {CascadeType.PERSIST}, fetch = FetchType.LAZY)
     @JsonIgnore
     @JoinColumn(name = "election_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Election election;
 
     @ManyToOne(cascade= {CascadeType.PERSIST}, fetch = FetchType.LAZY)

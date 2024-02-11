@@ -632,3 +632,12 @@ CREATE TABLE vote_referendum (
 );
 
 insert into candidate_type (id, name, election_type_id) values (9, 'Referendum', 5);
+
+ALTER TABLE election_candidates
+DROP CONSTRAINT IF EXISTS election_competitors_election_id_fkey;
+
+ALTER TABLE election_candidates
+ADD CONSTRAINT election_competitors_election_id_fkey
+FOREIGN KEY (election_id)
+REFERENCES election(election_id)
+ON DELETE CASCADE;

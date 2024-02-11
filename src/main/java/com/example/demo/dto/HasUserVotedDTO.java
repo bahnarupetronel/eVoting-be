@@ -12,4 +12,5 @@ import lombok.Setter;
 public class HasUserVotedDTO {
     private Long electionId;
     private Long candidateTypeId;
+
 }

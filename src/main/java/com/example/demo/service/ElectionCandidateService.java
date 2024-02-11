@@ -147,18 +147,4 @@ public class ElectionCandidateService {
                 .build();
     }
 
-    private Integer getLocalityIdByElectionType(User user, Long candidateTypeId) {
-        System.out.println(candidateTypeId);
-        if(candidateTypeId == 1 || candidateTypeId == 3) //Primar sau consiliu local
-            return user.getLocalityId();
-        if(candidateTypeId == 2 || candidateTypeId == 8) { //presedinte consiliu judetean sau consiliu judetean
-            Locality locality = localityService.getLocalityById(user.getLocalityId());
-            Locality locality1 = localityService.getByName(locality.getCounty());
-            return Math.toIntExact(locality1.getId());
-        }
-
-        Locality locality = localityService.getByName("Bucuresti");
-        return Math.toIntExact(locality.getId());
-    }
-
 }
