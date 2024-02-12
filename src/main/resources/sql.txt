@@ -620,8 +620,7 @@ CREATE TABLE referendum_options (
 );
 INSERT INTO referendum_options (option_name) VALUES
 ('Da'),
-('Nu'),
-('Ma abtin');
+('Nu');
 
 CREATE TABLE vote_referendum (
     vote_id SERIAL PRIMARY KEY,
@@ -692,3 +691,13 @@ SET residence =
     END;
 UPDATE counties
 SET residence = "Bucuresti" where name = "Bucuresti";
+
+ALTER TABLE election_candidates
+DROP CONSTRAINT election_competitors_competitor_id_fkey,
+ADD CONSTRAINT election_candidates_candidate_id_fkey
+FOREIGN KEY (candidate_id) REFERENCES candidates(id) ON DELETE CASCADE;
+
+ALTER TABLE vote_referendum
+DROP CONSTRAINT vote_referendum_option_id_fkey,
+ADD CONSTRAINT vote_referendum_option_id_fkey
+FOREIGN KEY (option_id) REFERENCES referendum_options(option_id) ON DELETE CASCADE ON UPDATE CASCADE;
