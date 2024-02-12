@@ -23,7 +23,7 @@ public class VoteController {
         voteService.registerVote(request, voteDTO);
     }
 
-    @GetMapping("")
+    @GetMapping("/results")
     @ResponseStatus(HttpStatus.OK)
     public List<?> getNumberOfVotes(@RequestParam("electionId") Long electionId, @RequestParam("candidateTypeId") Integer candidateTypeId, @RequestParam("localityId") Long localityId){
        return voteService.getNumberOfVotes(electionId, candidateTypeId, localityId);

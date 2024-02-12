@@ -68,13 +68,14 @@ public class ElectionService {
     }
 
     public Election getElectionById(String id, HttpServletRequest request) {
-        User user = userService.getUser(request);
-        Set<Role> roles =  user.getRoles();
-        boolean isAdmin = roles.stream()
-                .anyMatch(role -> role.getName() == EnumRole.admin);
         Long electionId = convertToLong(id);
        Election election = getElectionById(electionId);
-       if(!election.isPublished() &&  !isAdmin) {
+       if(!election.isPublished() ) {
+           User user = userService.getUser(request);
+           Set<Role> roles =  user.getRoles();
+           boolean isAdmin = roles.stream()
+                   .anyMatch(role -> role.getName() == EnumRole.admin);
+           if(!isAdmin)
            throw new EntityNotFoundException(("Resursa nu exista."));
        }
        return election;

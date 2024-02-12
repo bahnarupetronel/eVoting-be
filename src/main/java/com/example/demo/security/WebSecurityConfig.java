@@ -1,5 +1,6 @@
 package com.example.demo.security;
 
+import com.amazonaws.HttpMethod;
 import com.example.demo.security.jwt.AuthEntryPointJwt;
 import com.example.demo.security.jwt.AuthTokenFilter;
 import com.example.demo.security.services.UserDetailsServiceImpl;
@@ -62,8 +63,10 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors().and().csrf(csrf -> csrf.disable())
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
-                .authorizeHttpRequests() .requestMatchers("/api/user/login", "/api/user/register","/api/user/is-logged-in", "/api/user/forgot-password", "/api/user/change-password", "/counties/**", "/localities/**", "/candidate-type/**", "/gender",
-                        "/webhook" )
+                .authorizeHttpRequests() .requestMatchers("/api/user/login", "/api/user/register","/api/user/is-logged-in", "/api/user/forgot-password", "/api/user/change-password",
+                        "/counties/**", "/localities/**", "/candidate-type/**", "/gender",
+                        "/referendum/**", "/webhook", "/api/candidate/**", "/api/election/**", "/api/referendum-vote/results",  "/api/vote/results",
+                        "/api/election-candidate/**")
                 .permitAll().requestMatchers("/api/election/unpublished", "/api/election/publish", "/api/candidate/list", "/counties/import", "/education/create").hasAuthority("admin")
                 .anyRequest().authenticated()
                 .and().sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);

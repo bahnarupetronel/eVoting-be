@@ -22,7 +22,7 @@ public class VoteReferendumController {
         voteReferendumService.castVote(request, voteReferendumRequest);
     }
 
-    @GetMapping("")
+    @GetMapping("/results")
     @ResponseStatus(HttpStatus.OK)
     public List<?> getNumberOfVotes(@RequestParam("electionId") Long electionId){
         return voteReferendumService.getNumberOfVotes(electionId);
