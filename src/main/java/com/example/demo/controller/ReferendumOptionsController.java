@@ -10,7 +10,7 @@ import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
-@RequestMapping("/referendum")@AllArgsConstructor
+@RequestMapping("/api/referendum")@AllArgsConstructor
 public class ReferendumOptionsController {
     private final ReferendumOptionsService referendumOptionsService;
 
