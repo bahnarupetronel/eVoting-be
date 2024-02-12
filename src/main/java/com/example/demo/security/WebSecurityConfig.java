@@ -65,7 +65,7 @@ public class WebSecurityConfig {
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
                 .authorizeHttpRequests() .requestMatchers("/api/user/login", "/api/user/register","/api/user/is-logged-in", "/api/user/forgot-password", "/api/user/change-password",
                         "/counties/**", "/localities/**", "/candidate-type/**", "/gender",
-                        "/referendum/**", "/webhook", "/api/candidate/**", "/api/election/**", "/api/referendum-vote/results",  "/api/vote/results",
+                        "/api/referendum/**", "/webhook", "/api/candidate/**", "/api/election/**", "/api/referendum-vote/results",  "/api/vote/results",
                         "/api/election-candidate/**")
                 .permitAll().requestMatchers("/api/election/unpublished", "/api/election/publish", "/api/candidate/list", "/counties/import", "/education/create").hasAuthority("admin")
                 .anyRequest().authenticated()
