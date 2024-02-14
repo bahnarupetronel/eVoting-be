@@ -28,11 +28,11 @@ public class LocalityService {
             while ((line = reader.readLine()) != null) {
                 String[] columns = line.split(",");
                 Locality locality = new Locality();
-                locality.setName(columns[1]);
-                locality.setDiacritics(columns[2]);
-                locality.setCounty(columns[3]);
-                locality.setAuto(columns[4]);
-                locality.setZip(columns[5]);
+                locality.setName(columns[1].replace("\"", ""));
+                locality.setDiacritics(columns[2].replace("\"", ""));
+                locality.setCounty(columns[3].replace("\"", ""));
+                locality.setAuto(columns[4].replace("\"", ""));
+                locality.setZip(columns[5].replace("\"", ""));
 
                 String populationValue = columns[6].replace("\"", "");
                 int population = populationValue.isEmpty() ? -1 : Integer.parseInt(populationValue);
@@ -57,7 +57,7 @@ public class LocalityService {
         return localityRepository.findLocalitiesForMap();
     }
 
-    public Locality getLocalityById(Integer id){
+    public Locality getLocalityById(Long id){
         return localityRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException(new String("Localitatea cu id-ul " + id + " nu exista!")));
     }
 

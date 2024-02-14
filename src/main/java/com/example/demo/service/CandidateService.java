@@ -47,12 +47,21 @@ public class CandidateService {
             competitor.setImageUrl("https://evoting-licenta.s3.eu-central-1.amazonaws.com/competitor.png");
             competitor.setBirthDate(faker.date().birthday().toString());
 
-            String fakeDescription = faker.lorem().paragraphs(3).stream()
-                    .collect(Collectors.joining("\n\n"));
+            int maxChars = 400;
+            StringBuilder fakeDescriptionBuilder = new StringBuilder();
+            while (fakeDescriptionBuilder.length() < maxChars) {
+                fakeDescriptionBuilder.append(faker.lorem().paragraph());
+                if (fakeDescriptionBuilder.length() < maxChars) {
+                    fakeDescriptionBuilder.append("\n\n");
+                }
+            }
+            // Truncate to ensure the string is not longer than 400 characters
+            String fakeDescription = fakeDescriptionBuilder.substring(0, Math.min(fakeDescriptionBuilder.length(), maxChars));
+
             competitor.setDescription(fakeDescription);
 
             competitor.setPoliticalPartyId(politicalPartyLocality.getPoliticalParty().getId());
-            competitor.setCompetingInLocality((int) politicalPartyLocality.getLocality().getId());
+            competitor.setCompetingInLocality(politicalPartyLocality.getLocality().getId());
             competitor.setEmail(faker.internet().emailAddress());
             competitor.setPhoneNumber(faker.phoneNumber().phoneNumber());
             String randomCounty = counties.get(faker.random().nextInt(counties.size())).getName();
@@ -62,20 +71,20 @@ public class CandidateService {
         candidateRepository.saveAll(newCompetitors);
     }
 
-    public Candidate getCandidateById(Integer id) {
-        return candidateRepository.findById(Long.valueOf(id)).orElse(null);
+    public Candidate getCandidateById(Long id) {
+        return candidateRepository.findById(id).orElse(null);
     }
 
     public Candidate getCandidateByName(String name) {
         name = name.toLowerCase().replace("-", " ");
         String finalName = name;
-        Candidate candidate = candidateRepository.findByName(name).orElseThrow(() -> new ResourceNotFoundException(new String("Candidatul cu numele " + finalName + " nu exista!")));
+        Candidate candidate = candidateRepository.findByName(name).orElseThrow(() -> new ResourceNotFoundException("Candidatul cu numele " + finalName + " nu exista!"));
         PoliticalParty politicalParty = politicalPartyRepository.findById(Math.toIntExact(candidate.getPoliticalPartyId())).orElse(null);
         return  candidate;
     }
 
     public List<Candidate> getCandidatesByLocalityId(Long localityId) {
-        return candidateRepository.findByLocalityId(BigInteger.valueOf(localityId));
+        return candidateRepository.findByLocalityId(localityId);
     }
 
     public List<?> getAllCandidates() {
@@ -92,34 +101,36 @@ public class CandidateService {
         educationService.postEducationList(educations, candidateResponse);
     }
 
-    public List<CandidateByEventResponse> getCandidatesByEventTypeId(Integer typeId) {
+    public List<CandidateByEventResponse> getCandidatesByEventTypeId(Long typeId) {
         List<ArrayList<?>> candidatesResponse = candidateRepository.findByEventTypeId(typeId);
-        return candidatesResponse.stream().map(candidate -> mapToCandidateByEventResponse(candidate)).toList();
+        return candidatesResponse.stream().map(this::mapToCandidateByEventResponse).toList();
     }
 
-    public List<CandidateByEventAndLocalityResponse> getCandidatesByEventAndLocality(Integer typeId, Integer localityId, Integer eventId, Integer candidateTypeId) {
+    public List<CandidateByEventAndLocalityResponse> getCandidatesByEventAndLocality(Long typeId, Long localityId, Long eventId, Long candidateTypeId) {
         List<ArrayList<?>> candidatesResponse = candidateRepository.findByEventAndLocality(typeId, localityId, eventId, candidateTypeId);
 
-        return candidatesResponse.stream().map(candidate -> mapToCandidateByEventAndLocalityResponse(candidate)).toList();
+        return candidatesResponse.stream().map(this::mapToCandidateByEventAndLocalityResponse).toList();
     }
 
     private CandidateByEventAndLocalityResponse mapToCandidateByEventAndLocalityResponse(ArrayList<?> candidate) {
-        return  new CandidateByEventAndLocalityResponse().builder().id((Integer) candidate.get(0))
+        return  CandidateByEventAndLocalityResponse.builder().id((Long) candidate.get(0))
                 .name((String) candidate.get(1))
                 .position((String) candidate.get(2))
                 .competingInLocality((Long) candidate.get(3))
                 .politicalParty((String) candidate.get(4))
-                .politicalPartyId((Integer) candidate.get(5))
+                .politicalPartyId((Long) candidate.get(5))
                 .electionId((Long) candidate.get(6))
                 .registered((Boolean) candidate.get(7))
                 .build();
     }
 
     private CandidateByEventResponse mapToCandidateByEventResponse(ArrayList<?> candidate) {
-        return  new CandidateByEventResponse().builder().id((Integer) candidate.get(0))
+        return  CandidateByEventResponse.builder().id((Long) candidate.get(0))
                 .name((String) candidate.get(1))
                 .politicalParty((String) candidate.get(2))
                 .locality((String) candidate.get(3))
                 .build();
     }
+
+
 }

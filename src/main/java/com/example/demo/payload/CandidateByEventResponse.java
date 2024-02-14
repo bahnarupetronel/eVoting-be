@@ -6,7 +6,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CandidateByEventResponse {
-        private Integer id;
+        private Long id;
         private String name;
         private String politicalParty;
         private String locality;

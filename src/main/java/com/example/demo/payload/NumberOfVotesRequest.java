@@ -9,6 +9,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class NumberOfVotesRequest {
     private Long electionId;
-    private Integer candidateTypeId;
+    private Long candidateTypeId;
     private Long localityId;
 }

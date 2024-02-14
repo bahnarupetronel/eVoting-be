@@ -9,8 +9,8 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RegisteredCandidates {
-    private Integer candidateId;
-    private Integer electionCandidateId;
+    private Long candidateId;
+    private Long electionCandidateId;
     private String candidateName;
     private String politicalParty;
 }

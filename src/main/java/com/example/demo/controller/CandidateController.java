@@ -25,7 +25,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CandidateController {
     private final CandidateService candidateService;
-    private final EducationService educationService;
 
     @PostMapping("/list")
     @ResponseStatus(HttpStatus.CREATED)
@@ -35,8 +34,8 @@ public class CandidateController {
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public Candidate getCandidateById(@PathVariable("id") String id) {
-        return candidateService.getCandidateById(Integer.valueOf(id));
+    public Candidate getCandidateById(@PathVariable("id") Long id) {
+        return candidateService.getCandidateById(id);
     }
 
     @GetMapping("")
@@ -53,7 +52,7 @@ public class CandidateController {
 
     @GetMapping("/type/{typeId}")
     @ResponseStatus(HttpStatus.OK)
-    public List<CandidateByEventResponse> getCandidatesByEventTypeId(@PathVariable("typeId") Integer typeId) {
+    public List<CandidateByEventResponse> getCandidatesByEventTypeId(@PathVariable("typeId") Long typeId) {
         return candidateService.getCandidatesByEventTypeId(typeId);
     }
 
@@ -65,7 +64,7 @@ public class CandidateController {
 
     @GetMapping("/filtered")
     @ResponseStatus(HttpStatus.OK)
-    public List<CandidateByEventAndLocalityResponse> getCandidatesByEventAndLocality(@RequestParam("typeId") Integer typeId, @RequestParam("localityId") Integer localityId, @RequestParam("eventId") Integer eventId,@RequestParam("candidateTypeId") Integer candidateTypeId) {
+    public List<CandidateByEventAndLocalityResponse> getCandidatesByEventAndLocality(@RequestParam("typeId") Long typeId, @RequestParam("localityId") Long localityId, @RequestParam("eventId") Long eventId,@RequestParam("candidateTypeId") Long candidateTypeId) {
         return candidateService.getCandidatesByEventAndLocality(typeId, localityId, eventId, candidateTypeId);
     }
 }

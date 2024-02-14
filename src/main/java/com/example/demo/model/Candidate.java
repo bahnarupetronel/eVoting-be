@@ -58,7 +58,7 @@ public class Candidate {
     private Long politicalPartyId;
 
     @Column(name = "competing_in_locality")
-    private Integer competingInLocality;
+    private Long competingInLocality;
 
     @OneToMany(mappedBy = "candidate", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true )
     private List<Education> education = new ArrayList<>();

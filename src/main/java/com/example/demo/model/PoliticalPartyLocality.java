@@ -21,7 +21,7 @@ import lombok.Setter;
 public class PoliticalPartyLocality {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "political_party_id", insertable = false, updatable = false)

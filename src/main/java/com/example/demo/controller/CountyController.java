@@ -4,6 +4,7 @@ import com.example.demo.model.County;
 import com.example.demo.repository.CountyRepository;
 import com.example.demo.service.CountyService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,10 +14,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/counties")
-@RequiredArgsConstructor
 @CrossOrigin(origins = "http://localhost:3000")
-public class CountyController {
-    private final CountyService countyService;
+public class CountyController { 
+    @Autowired
+    private CountyService countyService;
 
     @PostMapping("/import")
     @ResponseStatus(HttpStatus.CREATED)

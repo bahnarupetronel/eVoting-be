@@ -20,7 +20,7 @@ public class UserEditDTO {
     private String addressLine2;
     private String phoneNumber;
     private String postalCode;
-    private Integer localityId;
+    private Long localityId;
     private String locality;
     private String county;
 }

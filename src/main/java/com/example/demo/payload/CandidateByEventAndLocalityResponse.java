@@ -7,12 +7,12 @@ import lombok.*;
 @Builder@Data
 @NoArgsConstructor@AllArgsConstructor
 public class CandidateByEventAndLocalityResponse {
-    private Integer id;
+    private Long id;
     private String name;
     private String position;
     private Long competingInLocality;
     private Long electionId;
     private String politicalParty;
-    private Integer politicalPartyId;
+    private Long politicalPartyId;
     private Boolean registered;
 }

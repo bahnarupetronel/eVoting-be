@@ -37,7 +37,7 @@ public class ElectionCandidate {
     private Long candidateId;
 
     @Column(name = "candidate_type_id")
-    private Integer candidateTypeId;
+    private Long candidateTypeId;
 
     @ManyToOne(cascade= {CascadeType.PERSIST}, fetch = FetchType.LAZY)
     @JsonIgnore
