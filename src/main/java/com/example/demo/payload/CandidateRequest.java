@@ -15,10 +15,10 @@ public class CandidateRequest {
     private String gender;
     private String position;
     private String imageUrl;
-    private Integer politicalPartyId;
-    private Integer competingInLocality;
-    private Integer candidateTypeId;
-    private Integer eventTypeId;
+    private Long politicalPartyId;
+    private Long competingInLocality;
+    private Long candidateTypeId;
+    private Long eventTypeId;
     private String address;
     private String email;
     private String description;

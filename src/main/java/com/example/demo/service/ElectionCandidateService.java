@@ -13,9 +13,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.example.demo.utils.Convert.convertToLong;
 
@@ -36,7 +34,7 @@ public class ElectionCandidateService {
         Candidate candidate = candidateRepository.findById(electionCompetitorRequest.getCandidateId()).orElse(null);
         Election election = electionService.getElectionById(electionCompetitorRequest.getElectionId());
         PoliticalParty politicalParty = politicalPartyRepository.findById(Math.toIntExact(electionCompetitorRequest.getPoliticalPartyId())).orElse(null);
-        Locality locality = localityService.getLocalityById(Math.toIntExact(electionCompetitorRequest.getCompetingInLocality()));
+        Locality locality = localityService.getLocalityById(electionCompetitorRequest.getCompetingInLocality());
         ElectionCandidate electionCandidate = modelMapper.map(electionCompetitorRequest, ElectionCandidate.class);
         if(candidate != null && election != null){
             Optional<ElectionCandidate> existingEntry = electionCandidateRepository.findByCandidateIdAndElectionId(electionCandidate.getCandidateId(), electionCandidate.getElectionId());
@@ -88,64 +86,87 @@ public class ElectionCandidateService {
         return electionCandidateRepository.findAll();
     }
 
-    public Boolean isCandidateRegisterd(Long electionId, Long candidateId, Integer localityId) {
-        return electionCandidateRepository.isCandidateRegistered(electionId, candidateId, localityId);
+    public Boolean isPoliticalPartyRegistered(Long electionId, Long politicalPartyId, Integer localityId) {
+        return electionCandidateRepository.isCandidateRegistered(electionId, politicalPartyId, localityId);
     }
 
-    public List<RegisteredCandidatesResponse> getRegisteredCandidates(HttpServletRequest request, String election, String candidateTypeId) {
+    public List<Candidate> getSingleCandidateRegistered (HttpServletRequest request, String election, String candidateTypeId){
         Long candidateType = convertToLong(candidateTypeId);
         Long electionId = convertToLong(election);
         User user = userService.getUser(request);
-
-        Integer userLocality = user.getLocalityId();
+        Long userLocality = user.getLocalityId();
         String userCounty = user.getCounty();
 
-       if(candidateType == 1 || candidateType == 3){
-           return getRegisteredCandidatesForLocalElections(electionId, userLocality, candidateType);
-       }
-       if(candidateType == 2 || candidateType == 8){
-            return getRegisteredCandidatesForCountyElections(electionId, candidateType, userCounty);
-       }
-       else return getRegisteredCandidatesForCountry(electionId, candidateType);
+        if(candidateType == 1){
+            return getSingleRegisteredLocality(electionId, userLocality, candidateType);
+        }
+        if(candidateType == 2){
+            return getSingleRegisteredCounty(electionId, candidateType, userCounty);
+        }
+        return getSingleRegisteredCountry(electionId, candidateType);
+
     }
 
-    private List<RegisteredCandidatesResponse> getRegisteredCandidatesForLocalElections(Long electionId, Integer localityId, Long candidateTypeId) {
+    public Map<Long, List<Candidate>> getMultipleCandidatesRegistered (HttpServletRequest request, String election, String candidateTypeId){
+        Long candidateType = convertToLong(candidateTypeId);
+        Long electionId = convertToLong(election);
+        User user = userService.getUser(request);
+        Long userLocality = user.getLocalityId();
+        String userCounty = user.getCounty();
+
+        Map<Long , List<Candidate>> candidatesByParty = new HashMap<>();
+        List<Candidate> candidates;
+        if(candidateType == 3){
+            candidates = getSingleRegisteredLocality(electionId, userLocality, candidateType);
+        }
+        else if(candidateType == 4 || candidateType == 5 || candidateType == 8){
+            candidates =  getSingleRegisteredCounty(electionId, candidateType, userCounty);
+        }
+        else candidates =  getSingleRegisteredCountry(electionId, candidateType);
+
+        for (Candidate candidate : candidates) {
+            if (!candidatesByParty.containsKey(candidate.getPoliticalPartyId())) {
+                candidatesByParty.put(candidate.getPoliticalPartyId(), new ArrayList<>());
+            }
+            candidatesByParty.get(candidate.getPoliticalPartyId()).add(candidate);
+        }
+        return candidatesByParty;
+
+    }
+
+    private List<Candidate> getSingleRegisteredLocality(Long electionId, Long localityId, Long candidateTypeId) {
         //id 1 and id 3 //Primar sau consiliu local
-        List<Long> list = electionCandidateRepository.findByElectionIdAndCompetingInLocality(electionId, localityId, Math.toIntExact(candidateTypeId));
+        List<Long> list = electionCandidateRepository.findByElectionIdAndCompetingInLocality(electionId, localityId, candidateTypeId);
 
-        List<RegisteredCandidatesResponse> registeredCandidates = new ArrayList<>();
+        List<Candidate> registeredCandidates = new ArrayList<>();
         list.forEach(item -> {
-            Candidate candidate = candidateService.getCandidateById(Math.toIntExact(item));
-            RegisteredCandidatesResponse registeredCandidatesResponse = new RegisteredCandidatesResponse(candidate);
-            registeredCandidates.add(registeredCandidatesResponse);
+            Candidate candidate = candidateService.getCandidateById(item);
+            registeredCandidates.add(candidate);
         });
 
         return registeredCandidates;
     }
 
-    private List<RegisteredCandidatesResponse> getRegisteredCandidatesForCountyElections(Long electionId, Long candidateTypeId, String county) {
+    private List<Candidate> getSingleRegisteredCounty(Long electionId, Long candidateTypeId, String county) {
         //id 2 and id 8 //Consiliu judetean sau Presedinte consiliu judetean
-        System.out.println(county);
-        List<Long> list = electionCandidateRepository.findByElectionIdAndCompetingInCounty(electionId, Math.toIntExact(candidateTypeId), county);
-        List<RegisteredCandidatesResponse> registeredCandidates = new ArrayList<>();
+        List<Long> list = electionCandidateRepository.findByElectionIdAndCompetingInCounty(electionId, candidateTypeId, county);
+        List<Candidate> registeredCandidates = new ArrayList<>();
         list.forEach(item -> {
-            Candidate candidate = candidateService.getCandidateById(Math.toIntExact(item));
-            RegisteredCandidatesResponse registeredCandidatesResponse = new RegisteredCandidatesResponse(candidate);
-            registeredCandidates.add(registeredCandidatesResponse);
+            Candidate candidate = candidateService.getCandidateById(item);
+            registeredCandidates.add(candidate);
         });
 
         return registeredCandidates;
     }
 
-    private List<RegisteredCandidatesResponse> getRegisteredCandidatesForCountry(Long electionId, Long candidateTypeId) {
+    private List<Candidate> getSingleRegisteredCountry(Long electionId, Long candidateTypeId) {
         //id 4, 5, 6, 7
         List<Long> list = electionCandidateRepository.findByElectionIdAndCandidateTypeId(electionId, candidateTypeId);
 
-        List<RegisteredCandidatesResponse> registeredCandidates = new ArrayList<>();
+        List<Candidate> registeredCandidates = new ArrayList<>();
         list.forEach(item -> {
-            Candidate candidate = candidateService.getCandidateById(Math.toIntExact(item));
-            RegisteredCandidatesResponse registeredCandidatesResponse = new RegisteredCandidatesResponse(candidate);
-            registeredCandidates.add(registeredCandidatesResponse);
+            Candidate candidate = candidateService.getCandidateById(item);
+            registeredCandidates.add(candidate);
         });
 
         return registeredCandidates;
@@ -153,10 +174,10 @@ public class ElectionCandidateService {
 
     private RegisteredCandidates mapToRegisteredCandidate(ArrayList<?> candidate) {
         return  new RegisteredCandidates().builder()
-                .candidateId((Integer) candidate.get(0))
+                .candidateId((Long) candidate.get(0))
                 .candidateName((String) candidate.get(1))
                 .politicalParty((String) candidate.get(2))
-                .electionCandidateId((Integer) candidate.get(3))
+                .electionCandidateId((Long) candidate.get(3))
                 .build();
     }
 

@@ -30,8 +30,6 @@ public class VoteService {
     private final HasUserVotedService hasUserVotedService;
     private final UserService userService;
     private final ElectionService electionService;
-    private final CandidateService candidateService;
-    private final ElectionCandidateService electionCandidateService;
     private final LocalityService localityService;
 
     public void registerVote(HttpServletRequest request, VoteDTO voteDTO){
@@ -47,16 +45,6 @@ public class VoteService {
 
         Election election = electionService.getElectionById(voteDTO.getElectionId());
 
-        Candidate candidate = candidateService.getCandidateById(Math.toIntExact(voteDTO.getCandidateId()));
-
-        Boolean  isCandidateRegistered = electionCandidateService.isCandidateRegisterd(voteDTO.getElectionId(), voteDTO.getCandidateId(), candidate.getCompetingInLocality() );
-
-        if(!isCandidateRegistered)
-            throw new BadRequestException(new String("Candidatul nu este inregistrat pentru acest eveniment."));
-
-        if(candidate.getCandidateTypeId() != voteDTO.getCandidateTypeId())
-            throw new BadRequestException(new String("Candidatul nu este inregistrat pentru acets eveniment"));
-
         if(! isElectionLive(election) )
             throw new BadRequestException(new String("Votul nu poate fi efectuat, votarea s-a incheiat"));
 
@@ -66,7 +54,7 @@ public class VoteService {
         Vote vote  = new Vote();
         vote.setElectionId(voteDTO.getElectionId());
         vote.setCandidateTypeId(voteDTO.getCandidateTypeId());
-        vote.setCandidateId(voteDTO.getCandidateId());
+        vote.setPoliticalPartyId(voteDTO.getPoliticalPartyId());
         voteRepository.save(vote);
         hasUserVotedService.registerUserVote(user, voteDTO);
     }
@@ -82,16 +70,16 @@ public class VoteService {
     }
 
     private List<?> getResultsByLocality (Long electionId, Integer candidateTypeId, Long localityId){
-        return  voteRepository.countVotesPerCandidateAndLocality(electionId, candidateTypeId, localityId);
+        return  voteRepository.countVotesPoliticalPartyLocality(electionId, candidateTypeId, localityId);
     }
 
     private List<?> getResultsByCounty (Long electionId, Integer candidateTypeId, Long localityId){
-        Locality locality = localityService.getLocalityById(Math.toIntExact(localityId));
-        return  voteRepository.countVotesPerCandidateAndCounty(electionId, candidateTypeId, locality.getCounty());
+        Locality locality = localityService.getLocalityById(localityId);
+        return  voteRepository.countVotesPoliticalPartyCounty(electionId, candidateTypeId, locality.getCounty());
     }
 
     private List<?> getResultsByCountry (Long electionId, Integer candidateTypeId){
-        return  voteRepository.countVotesPerCandidateCountry(electionId, candidateTypeId);
+        return  voteRepository.countVotesPoliticalPartyCountry(electionId, candidateTypeId);
     }
 
     private Boolean isElectionLive (Election election){

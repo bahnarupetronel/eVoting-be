@@ -9,5 +9,5 @@ import lombok.Setter;
 public class VoteDTO {
     private Long electionId;
     private Long candidateTypeId;
-    private Long candidateId;
+    private Long politicalPartyId;
 }

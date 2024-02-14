@@ -21,8 +21,8 @@ public class Vote {
     @Column(name = "candidate_type_id", nullable = false)
     private Long candidateTypeId;
 
-    @Column(name = "candidate_id", nullable = false)
-    private Long candidateId;
+    @Column(name = "political_party_id", nullable = false)
+    private Long politicalPartyId;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "election_id", referencedColumnName = "election_id", insertable = false, updatable = false)
@@ -35,7 +35,7 @@ public class Vote {
     private CandidateType eventType;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "candidate_id", referencedColumnName = "id", insertable = false, updatable = false)
+    @JoinColumn(name = "political_party_id", referencedColumnName = "id", insertable = false, updatable = false)
     @Transient
-    private Candidate candidates;
+    private PoliticalParty politicalParty;
 }

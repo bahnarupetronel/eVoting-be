@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.amazonaws.services.qldb.model.ResourceAlreadyExistsException;
 import com.example.demo.dto.PoliticalPartyDTO;
+import com.example.demo.model.Candidate;
 import com.example.demo.model.Locality;
 import com.example.demo.model.PoliticalParty;
 import com.example.demo.repository.LocalityRepository;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -39,7 +41,6 @@ public class PoliticalPartyService {
         Random random = new Random();
 
         for (Long partyId : politicalPartyIds) {
-            if(partyId > 105)
                 for (int i = 0; i < associationsPerPartyLocality; i++) {
                     Integer localityId = localityIds.get(random.nextInt(localityIds.size()));
                     PoliticalParty politicalParty = politicalPartyRepository.findById(Math.toIntExact(partyId)).orElse(null); // Replace with your repository method to fetch political party by ID
@@ -64,6 +65,10 @@ public class PoliticalPartyService {
             throw new ResourceAlreadyExistsException("This political party exists.");
         }
         politicalPartyRepository.save(politicalParty);
+    }
+
+    public PoliticalParty getPoliticalPartyById(Long id){
+        return politicalPartyRepository.findById(id);
     }
 
     public List<PoliticalParty> getPoliticalParties(){

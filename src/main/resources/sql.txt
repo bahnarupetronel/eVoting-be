@@ -47,6 +47,7 @@ INSERT INTO political_party (name)
 VALUES ('Partidul 21'), ('Partidul 22'), ('Partidul 23'), ('Partidul 24'), ('Partidul 25'), ('Partidul 26'), ('Partidul 27'), ('Partidul 28'), ('Partidul 29'), ('Partidul 0');
 
 CREATE TABLE political_party_locality (
+  id SERIAL,
   political_party_id BIGINT,
   locality_id BIGINT,
   FOREIGN KEY (political_party_id) REFERENCES political_party(id),
@@ -63,7 +64,7 @@ CREATE TABLE competitors (
   birth_date VARCHAR(100),
   description VARCHAR(500),
   political_party_id BIGINT,
-  FOREIGN KEY (political_party_id) REFERENCES political_party(id),)
+  FOREIGN KEY (political_party_id) REFERENCES political_party(id)
 );
 
 ALTER TABLE competitors
@@ -96,17 +97,15 @@ CREATE TABLE token (
   FOREIGN KEY (user_id) REFERENCES user_details(id)
 );
 
-CREATE TABLE Reset_Password_Request(
-                                       id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                                       request_id UUID,
-                                       user_id int,
-                                       FOREIGN KEY(user_id) REFERENCES User_Details(id)
-);
-
 CREATE TABLE roles (
     id SERIAL PRIMARY KEY,
     name VARCHAR(20)
 );
+
+INSERT INTO roles (name) VALUES
+('user'),
+('admin');
+
 
 CREATE TABLE user_roles (
     user_id INTEGER,
@@ -122,14 +121,6 @@ CREATE TABLE election (
     description TEXT,
     start_date TIMESTAMP NOT NULL,
     end_date TIMESTAMP NOT NULL
-);
-
-CREATE TABLE election_competitors (
-    election_competitor_id SERIAL PRIMARY KEY,
-    election_id INT,
-    competitor_id INT,
-    FOREIGN KEY (election_id) REFERENCES election(election_id),
-    FOREIGN KEY (competitor_id) REFERENCES competitors(id)
 );
 
 CREATE TABLE vote (
@@ -200,15 +191,15 @@ FOREIGN KEY (competitor_id)
 REFERENCES competitors(id)
 ON DELETE CASCADE;
 
+
 ALTER TABLE election_competitors
-ADD competing_in, political_party_id INT NULL;
+ADD competing_in_locality INT NULL,
+ADD political_party_id INT NULL;
 
 ALTER TABLE election
-ADD type_id INT,
-ADD FOREIGN KEY (type_id) REFERENCES election_types(id);
+ADD CONSTRAINT fk_election_type_id FOREIGN KEY (type_id) REFERENCES election_types(id);
 
-ALTER TABLE election_competitors
-ADD FOREIGN KEY (political_party_id) REFERENCES political_party(id);
+drop table election_competitors;
 
 CREATE TABLE election_competitors (
     election_competitor_id SERIAL PRIMARY KEY,
@@ -223,10 +214,8 @@ CREATE TABLE election_competitors (
 );
 
 ALTER TABLE competitors
-RENAME COLUMN competing_in TO competing_in_locality;
+ADD competing_in_locality INT NULL;
 
-ALTER TABLE election_competitors
-RENAME COLUMN competing_in TO competing_in_locality;
 
 ALTER TABLE election_competitors
 RENAME COLUMN competitor_id TO candidate_id;
@@ -236,165 +225,6 @@ RENAME COLUMN election_competitor_id TO election_candidate_id;
 
 ALTER TABLE election_competitors
   RENAME TO election_candidates;
-
-ALTER TABLE education
-=======
-CREATE TABLE User_details(
-                             id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                             name varchar(100),
-                             email varchar(100) unique,
-                             password varchar(100),
-                             cnp varchar(100) unique,
-                             series_and_number varchar(100),
-                             address_line1 varchar(100),
-                             address_line2 varchar(100),
-                             phone_number varchar(100),
-                             postal_code varchar(100),
-                             city varchar(100),
-                             state varchar(100),
-                             country varchar(100),
-                             link_CI_photo varchar(200),
-                             role varchar(100)
-);
-
-insert into User_details(name,email,password, cnp, seriesAndNumber) VALUES ('Petronel','bahnaru.petronel@gmail.com','sdfsfdrewr', 'eriwtw', 'ewjiothew');
-
-Create table Localities(
-                     id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                     name varchar(100),
-                     county varchar(100),
-                     population int,
-                     auto varchar(100),
-                     diacritics varchar(100),
-                     zip varchar(100),
-                     lat double precision,
-                     lng double precision
-);
-
-Create table Counties(
-                     id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                     name varchar(100)
-);
-
-CREATE TABLE political_party (
-  id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  name VARCHAR(100)
-);
-
-INSERT INTO political_party (name)
-VALUES ('Partidul 1'), ('Partidul 2'), ('Partidul 3'), ('Partidul 4'), ('Partidul 5'), ('Partidul 6'), ('Partidul 7'), ('Partidul 8'), ('Partidul 9'), ('Partidul 10'),('Partidul 11'), ('Partidul 12'),('Partidul 13'),('Partidul 14') ;
-INSERT INTO political_party (name)
-VALUES ('Partidul 21'), ('Partidul 22'), ('Partidul 23'), ('Partidul 24'), ('Partidul 25'), ('Partidul 26'), ('Partidul 27'), ('Partidul 28'), ('Partidul 29'), ('Partidul 0');
-
-CREATE TABLE political_party_locality (
-  political_party_id BIGINT,
-  locality_id BIGINT,
-  FOREIGN KEY (political_party_id) REFERENCES political_party(id),
-  FOREIGN KEY (locality_id) REFERENCES localities(id),
-  PRIMARY KEY (political_party_id, locality_id)
-);
-
-CREATE TABLE competitors (
-  id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  name VARCHAR(100),
-  gender VARCHAR(100),
-  position VARCHAR(100),
-  image_url VARCHAR(100),
-  birth_date VARCHAR(100),
-  description VARCHAR(500),
-  political_party_id BIGINT,
-  FOREIGN KEY (political_party_id) REFERENCES political_party(id),)
-);
-
-ALTER TABLE competitors
-ADD COLUMN locality_id BIGINT,
-ADD FOREIGN KEY (political_party_id, locality_id) REFERENCES political_party_locality(political_party_id, locality_id);
-
-ALTER TABLE competitors
-ADD COLUMN residence varchar(100),
-ADD COLUMN phone_number VARCHAR(100),
-ADD COLUMN email VARCHAR(100);
-
-CREATE TABLE education (
-  id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  faculty VARCHAR(100),
-  promotion_year int,
-  competitor_id BIGINT,
-  FOREIGN KEY (competitor_id) REFERENCES competitors(id)
-);
-
-ALTER TABLE localities
-ADD COLUMN political_party_id int;
-
-CREATE TABLE token (
-   id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  token VARCHAR(255) UNIQUE NOT NULL,
-  tokenType VARCHAR(20) NOT NULL,
-  revoked BOOLEAN NOT NULL,
-  expired BOOLEAN NOT NULL,
-  user_id INT,
-  FOREIGN KEY (user_id) REFERENCES user_details(id)
-);
-
-CREATE TABLE Reset_Password_Request(
-                                       id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-                                       request_id UUID,
-                                       user_id int,
-                                       FOREIGN KEY(user_id) REFERENCES User_Details(id)
-);
-
-CREATE TABLE roles (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(20)
-);
-
-CREATE TABLE user_roles (
-    user_id INTEGER,
-    role_id INTEGER,
-    PRIMARY KEY (user_id, role_id),
-    FOREIGN KEY (user_id) REFERENCES user_details (id),
-    FOREIGN KEY (role_id) REFERENCES roles (id)
-);
-
-CREATE TABLE election (
-    election_id INT  GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    title VARCHAR(255) NOT NULL,
-    description TEXT,
-    start_date TIMESTAMP NOT NULL,
-    end_date TIMESTAMP NOT NULL
-);
-
-CREATE TABLE election_competitors (
-    election_competitor_id SERIAL PRIMARY KEY,
-    election_id INT,
-    competitor_id INT,
-    FOREIGN KEY (election_id) REFERENCES election(election_id),
-    FOREIGN KEY (competitor_id) REFERENCES competitors(id)
-);
-
-CREATE TABLE vote (
-    vote_id SERIAL PRIMARY KEY,
-    user_id INT,
-    election_id INT,
-    has_voted BOOLEAN,
-    FOREIGN KEY (user_id) REFERENCES user_details(id),
-    FOREIGN KEY (election_id) REFERENCES election(election_id)
-);
-
-CREATE TABLE election_types (
-    id INT PRIMARY KEY,
-    name VARCHAR(255)
-);
-
-INSERT INTO election_types (id, name) VALUES
-(1, 'Prezidentiale'),
-(2, 'Locale'),
-(3, 'Parlamentare'),
-(4, 'Parlamentul european'),
-(5, 'Referendum');
-
-ALTER TABLE election
-ADD COLUMN type_id INT;
 
 ALTER TABLE election
 ADD CONSTRAINT fk_election_type
@@ -440,9 +270,6 @@ FOREIGN KEY (competitor_id)
 REFERENCES competitors(id)
 ON DELETE CASCADE;
 
-ALTER TABLE election_competitors
-ADD competing_in, political_party_id INT NULL;
-
 ALTER TABLE election
 ADD type_id INT,
 ADD FOREIGN KEY (type_id) REFERENCES election_types(id);
@@ -462,20 +289,9 @@ CREATE TABLE election_competitors (
     FOREIGN KEY (competitor_id) REFERENCES competitors (id)
 );
 
-ALTER TABLE competitors
-RENAME COLUMN competing_in TO competing_in_locality;
 
-ALTER TABLE election_competitors
-RENAME COLUMN competing_in TO competing_in_locality;
+drop table election_competitors;
 
-ALTER TABLE election_competitors
-RENAME COLUMN competitor_id TO candidate_id;
-
-ALTER TABLE election_competitors
-RENAME COLUMN election_competitor_id TO election_candidate_id;
-
-ALTER TABLE election_competitors
-  RENAME TO election_candidates;
 
 CREATE TABLE change_password (
     token_id SERIAL PRIMARY KEY,
@@ -565,8 +381,6 @@ ALTER TABLE candidates rename column residence to address;
 ALTER TABLE election
 DROP COLUMN title;
 
-ALTER TABLE user_details
-DROP COLUMN county_id;
 
 ALTER TABLE user_details
 DROP COLUMN role;
@@ -581,10 +395,10 @@ CREATE TABLE IF NOT EXISTS vote (
     vote_id SERIAL PRIMARY KEY,
     election_id INT NOT NULL,
     candidate_type_id INT NOT NULL,
-    candidate_id INT NOT NULL,
+    political_party_id INT NOT NULL,
     CONSTRAINT fk_election FOREIGN KEY (election_id) REFERENCES election(election_id),
     CONSTRAINT fk_event_type FOREIGN KEY (candidate_type_id) REFERENCES candidate_type(id),
-    CONSTRAINT fk_competitor FOREIGN KEY (candidate_id) REFERENCES candidates(id)
+    CONSTRAINT fk_political_party_id FOREIGN KEY (political_party_id) REFERENCES political_party(id)
 );
 
 CREATE TABLE IF NOT EXISTS has_user_voted (
@@ -596,11 +410,6 @@ CREATE TABLE IF NOT EXISTS has_user_voted (
     CONSTRAINT fk_election FOREIGN KEY (election_id) REFERENCES election(election_id),
     CONSTRAINT fk_event_type FOREIGN KEY (candidate_type_id) REFERENCES candidate_type(id)
 );
-
-INSERT INTO roles (id, name) VALUES (1, 'user');
-INSERT INTO roles (id, name) VALUES (2, 'admin');
-
-INSERT INTO user_roles (user_id, role_id) VALUES (2, 2);
 
 ALTER TABLE election
 ADD COLUMN law_text VARCHAR(255) NULL;
@@ -667,7 +476,7 @@ SET residence =
         WHEN name = 'Galati' THEN 'Galati'
         WHEN name = 'Giurgiu' THEN 'Giurgiu'
         WHEN name = 'Gorj' THEN 'Targu Jiu'
-        WHEN name = 'Harghita' THEN 'Miercurea Ciuc'
+        WHEN name = 'Harghita' THEN 'Miercurea-Ciuc'
         WHEN name = 'Hunedoara' THEN 'Deva'
         WHEN name = 'Ialomita' THEN 'Slobozia'
         WHEN name = 'Iasi' THEN 'Iasi'
@@ -685,7 +494,7 @@ SET residence =
         WHEN name = 'Teleorman' THEN 'Alexandria'
         WHEN name = 'Timis' THEN 'Timisoara'
         WHEN name = 'Tulcea' THEN 'Tulcea'
-        WHEN name = 'Vaslui' THEN 'Vasului'
+        WHEN name = 'Vaslui' THEN 'Vaslui'
         WHEN name = 'Valcea' THEN 'Ramnicu Valcea'
         WHEN name = 'Vrancea' THEN 'Focsani'
     END;
@@ -697,7 +506,90 @@ DROP CONSTRAINT election_competitors_competitor_id_fkey,
 ADD CONSTRAINT election_candidates_candidate_id_fkey
 FOREIGN KEY (candidate_id) REFERENCES candidates(id) ON DELETE CASCADE;
 
+ALTER TABLE candidates
+ADD candidate_type_id INT;
+
+ALTER TABLE candidates
+ADD CONSTRAINT fk_candidate_type_id
+FOREIGN KEY (candidate_type_id)
+REFERENCES candidate_type(id);
+
 ALTER TABLE vote_referendum
 DROP CONSTRAINT vote_referendum_option_id_fkey,
 ADD CONSTRAINT vote_referendum_option_id_fkey
 FOREIGN KEY (option_id) REFERENCES referendum_options(option_id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+ALTER TABLE education
+ADD candidate_id INT;
+
+ALTER TABLE education
+ADD CONSTRAINT fk_candidate_id
+FOREIGN KEY (candidate_id)
+REFERENCES candidates(id);
+
+ALTER TABLE election
+ADD published BOOLEAN;
+
+ALTER TABLE election_candidates
+ADD candidate_type_id INT;
+
+ALTER TABLE election_candidates
+ADD CONSTRAINT fk_candidate_type_id
+FOREIGN KEY (candidate_type_id)
+REFERENCES candidate_type(id);
+
+ALTER TABLE election_candidates
+ADD county VARCHAR(255);
+
+ALTER TABLE election_candidates
+ADD competing_in_locality INT;
+
+ALTER TABLE political_party_locality
+ADD COLUMN id SERIAL PRIMARY KEY;
+
+ALTER TABLE user_details
+ADD COLUMN locality_id INT;
+
+ALTER TABLE user_details
+ADD CONSTRAINT fk_locality_id
+FOREIGN KEY (locality_id)
+REFERENCES localities(id);
+
+ALTER TABLE user_details
+DROP COLUMN name;
+
+ALTER TABLE user_details
+DROP COLUMN country;
+
+ALTER TABLE user_details
+DROP COLUMN state;
+
+ALTER TABLE user_details
+DROP COLUMN city;
+
+ALTER TABLE localities
+DROP COLUMN political_party_id;
+
+UPDATE candidates
+SET event_type_id = FLOOR(RANDOM() * 4) + 1;
+
+UPDATE candidates
+SET candidate_type_id = 7
+WHERE event_type_id = 4;
+
+UPDATE candidates
+SET candidate_type_id = (FLOOR(RANDOM() * 2) + 4)
+WHERE event_type_id = 3;
+
+UPDATE candidates
+SET candidate_type_id = (FLOOR(RANDOM() * 3) + 1)
+WHERE event_type_id = 2;
+
+insert into candidate_type (id, name, election_type_id) values (8, 'Consiliu judetean', 2);
+
+ALTER TABLE election_candidates
+DROP CONSTRAINT election_candidates_competing_in_fkey;
+
+
+ALTER TABLE election_candidates
+ADD CONSTRAINT election_candidates_competing_in_fkey FOREIGN KEY (competing_in_locality) REFERENCES localities(id);

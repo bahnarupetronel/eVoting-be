@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import com.example.demo.model.Candidate;
 import com.example.demo.model.ElectionCandidate;
 import com.example.demo.payload.ElectionCompetitorRequest;
 import com.example.demo.payload.RegisteredCandidates;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
@@ -48,10 +50,15 @@ public class ElectionCandidateController {
         electionCandidateService.removeCandidateFromEvent(electionCompetitorRequest);
     }
 
-    @GetMapping("/registered")
+    @GetMapping("/registered/single")
     @ResponseStatus(HttpStatus.OK)
-    public List<RegisteredCandidatesResponse> getRegisteredCandidates(HttpServletRequest request, @RequestParam("electionId") String electionId, @RequestParam("candidateTypeId") String candidateTypeId){
-        return electionCandidateService.getRegisteredCandidates(request, electionId, candidateTypeId);
+    public List<Candidate> getSingleCandidatesPerPoliticalParty(HttpServletRequest request, @RequestParam("electionId") String electionId, @RequestParam("candidateTypeId") String candidateTypeId){
+        return electionCandidateService.getSingleCandidateRegistered(request, electionId, candidateTypeId);
     }
 
+    @GetMapping("/registered/multiple")
+    @ResponseStatus(HttpStatus.OK)
+    public Map<Long, List<Candidate>> getMultipleCandidatesPerPoliticalParty(HttpServletRequest request, @RequestParam("electionId") String electionId, @RequestParam("candidateTypeId") String candidateTypeId){
+        return electionCandidateService.getMultipleCandidatesRegistered(request, electionId, candidateTypeId);
+    }
 }

@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public interface CandidateRepository extends JpaRepository<Candidate, Long> {
     @Query(value = "SELECT * FROM candidates WHERE competing_in_locality = ?1", nativeQuery = true)
-    List<Candidate> findByLocalityId(@Param("localityId") BigInteger localityId);
+    List<Candidate> findByLocalityId(@Param("localityId") Long localityId);
 
     @Query(value = "SELECT * FROM candidates WHERE LOWER(name) = ?1", nativeQuery = true)
     Optional<Candidate> findByName(@Param("name") String name);
@@ -22,7 +22,7 @@ public interface CandidateRepository extends JpaRepository<Candidate, Long> {
     List<?> findAllCandidates();
 
     @Query(value = "SELECT c.id, c.name, p.name, l.name  FROM candidates c join political_party p on c.political_party_id=p.id join localities l on l.id = c.competing_in_locality WHERE event_type_id = ?1", nativeQuery = true)
-    List<ArrayList<?>> findByEventTypeId(@Param("typeId") Integer eventTypeId);
+    List<ArrayList<?>> findByEventTypeId(@Param("typeId") Long eventTypeId);
 
     @Query(value = "SELECT c.id, c.name, c.position, c.competing_in_locality, p.name AS political_party_name, p.id AS political_party_id, elcomp.election_id," +
             "CASE WHEN (elcomp.election_id = ?3 and elcomp.candidate_id IS NOT NULL) THEN true ELSE false " +
@@ -34,5 +34,5 @@ public interface CandidateRepository extends JpaRepository<Candidate, Long> {
             "   political_party p ON c.political_party_id = p.id" +
             "     WHERE" +
             "   c.event_type_id = ?1 AND c.competing_in_locality = ?2 and c.candidate_type_id = ?4", nativeQuery = true)
-    List<ArrayList<?>> findByEventAndLocality(@Param("typeId") Integer typeId, @Param("localityId") Integer localityId, @Param("eventId") Integer eventId, @Param("candidateTypeId") Integer candidateTypeId);
+    List<ArrayList<?>> findByEventAndLocality(@Param("typeId") Long typeId, @Param("localityId") Long localityId, @Param("eventId") Long eventId, @Param("candidateTypeId") Long candidateTypeId);
 }

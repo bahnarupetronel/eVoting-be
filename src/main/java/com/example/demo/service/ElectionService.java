@@ -42,7 +42,8 @@ public class ElectionService {
     }
 
     public void publishEvent(ElectionPublish electionPublish){
-        Election election = electionRepository.getById(electionPublish.getElectionId());
+        Election election = electionRepository.findById(electionPublish.getElectionId()).orElse(null);
+        assert election != null;
         election.setPublished(true);
         electionRepository.save(election);
     }

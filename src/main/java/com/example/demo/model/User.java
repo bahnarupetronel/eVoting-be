@@ -37,7 +37,7 @@ public class User implements UserDetails {
     private String locality;
 
     @Column(name = "locality_id")
-    private Integer localityId;
+    private Long localityId;
 
     @JsonIgnore
     @Column(name = "password", length = 100)
@@ -77,6 +77,11 @@ public class User implements UserDetails {
     @JsonIgnore
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null;
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
     }
 
     @JsonIgnore

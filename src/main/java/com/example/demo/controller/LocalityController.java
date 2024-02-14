@@ -3,7 +3,9 @@ package com.example.demo.controller;
 import com.example.demo.model.Locality;
 import com.example.demo.repository.LocalityRepository;
 import com.example.demo.service.LocalityService;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.*;
@@ -16,9 +18,9 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/localities")
 @CrossOrigin(origins = "http://localhost:3000")
-@RequiredArgsConstructor
 public class LocalityController {
-    private final LocalityService localityService;
+    @Autowired
+    private LocalityService localityService;
 
     @PostMapping("/import")
     public void importLocalities() throws IOException {
@@ -36,7 +38,7 @@ public class LocalityController {
     }
 
     @GetMapping("/{id}")
-    public Locality getById(@PathVariable Integer id) {
+    public Locality getById(@PathVariable Long id) {
         return localityService.getLocalityById(id);
     }
 }
